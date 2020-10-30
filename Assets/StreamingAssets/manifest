@@ -1,0 +1,112 @@
+
+{
+    "MainVersion" : 0,
+    "SubVersion"  : 0,
+    "packs"       : [
+        {
+            "dependencies" : [
+            ],
+            "checksum"     : 576245886,
+            "name"         : "effects",
+            "location"     : 2,
+            "cacheType"    : 2,
+            "compressionType" : 0,
+            "size"            : 66416
+        }
+    ],
+    "files"       : [
+        {
+            "checksum" : 317042801,
+            "name"     : "a517c559e4cb2449322de0ca48a1a7b2",
+            "location" : 2,
+            "cacheType" : 0,
+            "compressionType" : 0,
+            "size"            : 1657
+        },
+        {
+            "checksum" : 37855964,
+            "name"     : "d89db5434b1c46fcbd2b911da59f9d1c",
+            "location" : 2,
+            "cacheType" : 0,
+            "compressionType" : 0,
+            "size"            : 1950
+        },
+        {
+            "checksum" : 1786270268,
+            "name"     : "e3c305d9e7c93db3b643fb9efa8b2e84",
+            "location" : 2,
+            "cacheType" : 0,
+            "compressionType" : 0,
+            "size"            : 9228
+        },
+        {
+            "checksum" : 1985453756,
+            "name"     : "fad58de7366495db4650cfefac2fcd61",
+            "location" : 2,
+            "cacheType" : 0,
+            "compressionType" : 0,
+            "size"            : 3131
+        }
+    ],
+    "scenes"      : [
+    ],
+    "spritePacks" : [
+    ],
+    "bundleRules" : [
+        {
+            "directory" : "Tex/",
+            "rule"      : 1,
+            "_rule"     : "PackToRootFolder"
+        },
+        {
+            "directory" : "scene/",
+            "rule"      : 0,
+            "_rule"     : "PackOneByOne"
+        },
+        {
+            "directory" : "font/",
+            "rule"      : 0,
+            "_rule"     : "PackOneByOne"
+        },
+        {
+            "directory" : "tower/",
+            "rule"      : 0,
+            "_rule"     : "PackOneByOne"
+        },
+        {
+            "directory" : "enemy/",
+            "rule"      : 0,
+            "_rule"     : "PackOneByOne"
+        },
+        {
+            "directory" : "ui/",
+            "rule"      : 0,
+            "_rule"     : "PackOneByOne"
+        },
+        {
+            "directory" : "sound/",
+            "rule"      : 2,
+            "_rule"     : "PackToParentFolder"
+        },
+        {
+            "directory" : "effect/chouka/",
+            "rule"      : 3,
+            "_rule"     : "PackToSelfFolderByUnderline"
+        },
+        {
+            "directory" : "effect/bullet/",
+            "rule"      : 3,
+            "_rule"     : "PackToSelfFolderByUnderline"
+        },
+        {
+            "directory" : "effect/",
+            "rule"      : 2,
+            "_rule"     : "PackToParentFolder"
+        },
+        {
+            "directory" : "image/",
+            "rule"      : 2,
+            "_rule"     : "PackToParentFolder"
+        }
+    ]
+}

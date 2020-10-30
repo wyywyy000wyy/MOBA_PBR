@@ -1,0 +1,12 @@
+
+{
+    "NotCache" : [
+    ],
+    "CacheInScene" : [
+    ],
+    "CacheAllTime" : [
+    ],
+    "NotCompress"  : null,
+    "CompressLZMA" : null,
+    "CompressLZ4"  : null
+}
