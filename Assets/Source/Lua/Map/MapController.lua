@@ -21,14 +21,21 @@ function MapController:bind_behaviour_funcs()
     }
 end
 
-function MapController:OnBeginDrag(eventData)
-    ELOG("OnBeginDrag")
+function MapController:OnBeginDrag()
+    ELOG("OnBeginDrag", U.Input.mousePosition)
+    self.start_point = U.Input.mousePosition
+    self.camera_pos = self.camera.transform.position
 end
 
-function MapController:OnEndDrag(eventData)
+function MapController:OnEndDrag()
     ELOG("OnEndDrag")
+    
 end
 
-function MapController:OnDrag(mousePosition)
-    ELOG("OnDrag")
+function MapController:OnDrag()
+    -- ELOG("OnDrag", U.Input.touchCount)
+    local dt = U.Input.mousePosition - self.start_point
+    ELOG("OnDrag", dt.x, dt.y)
+
+    self.camera.transform.position = self.camera_pos + U.Vector3(dt.x,0,dt.y) * 0.1
 end
