@@ -170,9 +170,6 @@ local function contact_parm(...)
 end
 
 function DT(t, force_in_release, step)
-    if not _DEBUG and not force_in_release then
-        return ""
-    end
 
     return _dump_value(t,step)
 end

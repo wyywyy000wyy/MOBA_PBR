@@ -20,10 +20,11 @@ end
 
 require("Base/import")
 require("Base/s_coroutine")
-
-
-
 require("Base/global_func")
+require("Base/class")
+
+
+
 
 function run_all_action(action_complete, on_progress)
     local total = #action_list
