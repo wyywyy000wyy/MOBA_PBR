@@ -22,8 +22,10 @@ require("Base/import")
 require("Base/s_coroutine")
 require("Base/global_func")
 require("Base/class")
+require("Base/behaviour_bridge")
 
-
+add_require("Map/Map")
+add_require("Map/MapController")
 
 
 function run_all_action(action_complete, on_progress)
@@ -80,6 +82,10 @@ function main()
         --     ELOG("loaded GameObject", go)
         --     U.GameObject.Instantiate(go)
         -- end)
+        LOG("run_all_action done")
+        local map = Map.new()
+        map:LoadMap("Scene01")
+
 
         unload_unused_memory_on_next_frame()
         lock_g_variable()

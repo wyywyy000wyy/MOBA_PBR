@@ -2,6 +2,7 @@
 local U = {}
 local CS = CS
 ---------- Custom
+U.GHelper = CS.GHelper
 
 
 -- Json = LuaJson
@@ -73,5 +74,14 @@ U.Shadow = UI.Shadow
 U.Outline = UI.Outline
 U.ScrollRect = UI.ScrollRect
 
+
+-- for k, v in pairs(CS) do
+--     U[k] = v
+-- end
+
+U.XLoader = CS.XLoader
+U.LuaBridgeBase = CS.LuaBridgeBase
+U.LuaBridgeType = U.GHelper.TraveEnumToLuaTable(typeof(CS.LuaBridgeType), {})
+U.UnityBehaviourFunc =U.GHelper.TraveEnumToLuaTable(typeof(CS.UnityBehaviourFunc), {})
 
 _G.U = U
