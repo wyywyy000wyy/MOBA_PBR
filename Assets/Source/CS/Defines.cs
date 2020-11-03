@@ -13,6 +13,9 @@ public class Defines
 
     public static readonly string AssetBundleSourcePath = "Assets/BundledRes";
 
+
+    public static readonly string AssetBundleEntityPath = AssetBundleSourcePath + "/Entity";
+
     public static readonly string AssetBundleSceneSourcePath = AssetBundleSourcePath + "/Scenes";
     public static readonly string SpritePackerSourceImagePath = AssetBundleSourcePath + "/Images";
 

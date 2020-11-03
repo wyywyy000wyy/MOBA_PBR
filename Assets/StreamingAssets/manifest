@@ -12,9 +12,70 @@
             "cacheType"    : 2,
             "compressionType" : 0,
             "size"            : 66416
+        },
+        {
+            "dependencies" : [
+                "shaders_gpuskinning"
+            ],
+            "checksum"     : 1651829268,
+            "name"         : "entity",
+            "location"     : 2,
+            "cacheType"    : 2,
+            "compressionType" : 0,
+            "size"            : 4453634
+        },
+        {
+            "dependencies" : [
+            ],
+            "checksum"     : 1173431722,
+            "name"         : "materials_terrain",
+            "location"     : 2,
+            "cacheType"    : 2,
+            "compressionType" : 0,
+            "size"            : 55283
+        },
+        {
+            "dependencies" : [
+                "materials_terrain",
+                "scenes_scene01"
+            ],
+            "checksum"     : 118827754,
+            "name"         : "scenes",
+            "location"     : 2,
+            "cacheType"    : 2,
+            "compressionType" : 0,
+            "size"            : 25893
+        },
+        {
+            "dependencies" : [
+            ],
+            "checksum"     : 2066215944,
+            "name"         : "scenes_scene01",
+            "location"     : 2,
+            "cacheType"    : 2,
+            "compressionType" : 0,
+            "size"            : 192229
+        },
+        {
+            "dependencies" : [
+            ],
+            "checksum"     : 3667101875,
+            "name"         : "shaders_gpuskinning",
+            "location"     : 2,
+            "cacheType"    : 2,
+            "compressionType" : 0,
+            "size"            : 19646
         }
     ],
     "files"       : [
+        {
+            "checksum" : 1679616977,
+            "name"     : "283022ab2feb4dac5a5a339ee2e8d273",
+            "location" : 2,
+            "cacheType" : 0,
+            "compressionType" : 0,
+            "size"            : 3131
+        },
         {
             "checksum" : 317042801,
             "name"     : "a517c559e4cb2449322de0ca48a1a7b2",
@@ -24,31 +85,64 @@
             "size"            : 1657
         },
         {
-            "checksum" : 37855964,
+            "checksum" : 3158718723,
+            "name"     : "ad0963b045d8587edcaa4baf37f12494",
+            "location" : 2,
+            "cacheType" : 0,
+            "compressionType" : 0,
+            "size"            : 103
+        },
+        {
+            "checksum" : 3387621903,
+            "name"     : "c457238e58f0b09dcc68aa3a36aa59cb",
+            "location" : 2,
+            "cacheType" : 0,
+            "compressionType" : 0,
+            "size"            : 1878
+        },
+        {
+            "checksum" : 4217560129,
+            "name"     : "c8811d0a9444b86ccb694d9f546fb20b",
+            "location" : 2,
+            "cacheType" : 0,
+            "compressionType" : 0,
+            "size"            : 3383
+        },
+        {
+            "checksum" : 2495010385,
             "name"     : "d89db5434b1c46fcbd2b911da59f9d1c",
             "location" : 2,
             "cacheType" : 0,
             "compressionType" : 0,
-            "size"            : 1950
+            "size"            : 2223
         },
         {
-            "checksum" : 1786270268,
+            "checksum" : 1952016613,
             "name"     : "e3c305d9e7c93db3b643fb9efa8b2e84",
             "location" : 2,
             "cacheType" : 0,
             "compressionType" : 0,
-            "size"            : 9228
+            "size"            : 9155
         },
         {
-            "checksum" : 1985453756,
+            "checksum" : 2062934498,
             "name"     : "fad58de7366495db4650cfefac2fcd61",
             "location" : 2,
             "cacheType" : 0,
             "compressionType" : 0,
-            "size"            : 3131
+            "size"            : 3083
         }
     ],
     "scenes"      : [
+        {
+            "bundle" : "scenes",
+            "checksum" : 0,
+            "name"     : "Scene01",
+            "location" : 0,
+            "cacheType" : 2,
+            "compressionType" : 0,
+            "size"            : 0
+        }
     ],
     "spritePacks" : [
     ],

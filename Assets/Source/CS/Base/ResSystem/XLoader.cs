@@ -1,5 +1,5 @@
 #if UNITY_EDITOR
- #define USE_BUNDLE_IN_EDITOR // test
+//#define USE_BUNDLE_IN_EDITOR // test
 using UnityEditor;
 #endif
 
@@ -479,7 +479,7 @@ public static class XLoader
         var obj = _LoadObjInEditorAt(string.Format("spriteatlas/{0}.spriteatlas", tag), typeof(UnityEngine.U2D.SpriteAtlas));
         if (obj == null)
         {
-            Debug.LogErrorFormat("XLoader._SpriteAtlasRequested : put {0} in folder {1}", tag, Defines.SpriteAltasPath);
+            //Debug.LogErrorFormat("XLoader._SpriteAtlasRequested : put {0} in folder {1}", tag, Defines.SpriteAltasPath);
         }
         callback(obj as UnityEngine.U2D.SpriteAtlas);
 #else

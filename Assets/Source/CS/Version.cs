@@ -3,5 +3,5 @@
 			public static int code = 1000000;
 			public static string identifier = "com.YiShaTech.MOBA_PBR";
 			public static int vendor = 1;
-            public static int buildTime = 1603835157;
+            public static int buildTime = 1604426313;
 		}
