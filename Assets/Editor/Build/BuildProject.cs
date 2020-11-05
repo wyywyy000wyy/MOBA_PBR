@@ -18,8 +18,8 @@ public class BuildProject : Editor
     public static void BuildAndroid()
     {
         PlayerSettings.SetScriptingBackend(BuildTargetGroup.Android, ScriptingImplementation.IL2CPP);
-        EditorUserBuildSettings.development = true;
-        EditorUserBuildSettings.connectProfiler = true;
+
+
 
         string targetDir = Application.dataPath.Replace("/Assets", "") + "/build/";
         string targetName = targetDir + AndroidAppName + ".apk";
@@ -44,8 +44,8 @@ public class BuildProject : Editor
         PlayerSettings.Android.bundleVersionCode = GameConfig.version.GetVersionCode();
         EditorUserBuildSettings.androidBuildSystem = AndroidBuildSystem.Gradle;
 
-        PlayerSettings.keystorePass = "63nd4PEd";
-        PlayerSettings.keyaliasPass = "63nd4PEd";
+        //PlayerSettings.keystorePass = "63nd4PEd";
+        //PlayerSettings.keyaliasPass = "63nd4PEd";
 
         //string defineSymbols = "";
         //ConditionBuildDefineSymbols.Instance().Prepare(BuildTargetGroup.Android, defineSymbols);
@@ -55,14 +55,22 @@ public class BuildProject : Editor
 
         BuildTargetGroup build_group = BuildTargetGroup.Android;
         BuildTarget buildTarget = BuildTarget.Android;
-        EditorUserBuildSettings.SwitchActiveBuildTarget(build_group, buildTarget);
+        //EditorUserBuildSettings.SwitchActiveBuildTarget(build_group, buildTarget);
+
+        EditorUserBuildSettings.development = true;
+        EditorUserBuildSettings.connectProfiler = true;
 
         string defines = PlayerSettings.GetScriptingDefineSymbolsForGroup(build_group);
         PlayerSettings.SetScriptingDefineSymbolsForGroup(build_group, defines);
 
         AssetDatabase.SaveAssets();
 
-        BuildReport report = BuildPipeline.BuildPlayer(buildList, targetName, buildTarget, BuildOptions.None);
+        BuildOptions op = BuildOptions.Development;
+        op |= BuildOptions.ConnectWithProfiler;
+        op |= BuildOptions.AllowDebugging;
+
+
+        BuildReport report = BuildPipeline.BuildPlayer(buildList, targetName, buildTarget, op);
 
         //ConditionBuildDefineSymbols.Instance().Clear();
 
