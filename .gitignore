@@ -4,3 +4,4 @@ Assets/Source/CS/XLuaGen.meta
 Library/
 Temp/
 obj/
+Assets/StreamingAssets/*
