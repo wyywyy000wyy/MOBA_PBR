@@ -35,7 +35,7 @@ Material:
     - _BlendFrameIndex: 0
     - _BlendProgress: 0
     - _BoneNum: 24
-    - _FrameIndex: 51
+    - _FrameIndex: 33
     - _PerPixelWorldSize: 0.25
     m_Colors:
     - _AnimationTexSize: {r: 766, g: 280, b: 0, a: 0}

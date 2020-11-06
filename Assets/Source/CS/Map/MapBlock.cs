@@ -2,17 +2,28 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class MapBlock : MonoBehaviour
+public class MapBlock : MapContainerObject
 {
     // Start is called before the first frame update
-    void Start()
+    Map.MAP_CELL_TYPE[] cells;
+
+    void Show()
+    {
+
+    }
+
+    void ShowDetail()
     {
         
     }
 
-    // Update is called once per frame
-    void Update()
+    void HideDetail()
     {
-        
+
+    }
+
+    void Hide()
+    {
+
     }
 }

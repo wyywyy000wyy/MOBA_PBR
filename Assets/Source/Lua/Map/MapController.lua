@@ -61,7 +61,7 @@ function MapController:OnDrag()
             self.touch_dis = nil
             self.camera_pos = self.camera.transform.position
         elseif self.mode == 1 then 
-            self.camera.transform.position = self.camera_pos + U.Vector3(dt.x,0,dt.y) * 0.1
+            self.camera.transform.position = self.camera_pos + U.Vector3(dt.x,0,dt.y) * (0.005 * self.camera_pos.y)
         end
     end
     
