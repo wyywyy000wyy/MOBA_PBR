@@ -56,7 +56,7 @@ function Map:OnMapLoaded()
 
     -- CS.MapResourceCenter.Start()
     local count = 0
-    for _, v in ipairs (cfg_map_resource) do
+    for _, v in pairs (cfg_map_resource) do
         CS.MapResourceCenter.PreLoad(v.ID, function()
             count = count + 1
             if count == #cfg_map_resource then

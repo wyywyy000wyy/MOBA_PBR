@@ -45,6 +45,13 @@ public class MapBlock : MapContainerObject
             resources.RemoveAt(i);
         }
         terrain = null;
+
+        LinkedListNode<MapLODObject> lp = obj_list.First;
+        while (lp != null)
+        {
+            lp.Value.Show(2);
+            lp = lp.Next;
+        }
     }
 
     public void Show(int level)
@@ -69,12 +76,31 @@ public class MapBlock : MapContainerObject
         while (lp != null)
         {
             lp.Value.Show(level);
+            lp = lp.Next;
         }
     }
 
     public void ShowDetail()
     {
-        
+        if(obj_list.First != null)
+        {
+            return;
+        }
+        int count = 100;
+        for(int i = 0; i < count; ++i)
+        {
+            int res_obj_id = Random.Range(1001,1004);
+            Vector3 pos = new Vector3(basePos.x + Random.Range((float)-Map.MAP_BLOCK_DEMANSION_X / 2, Map.MAP_BLOCK_DEMANSION_X / 2), basePos.y, basePos.z + Random.Range((float)-Map.MAP_BLOCK_DEMANSION_Y / 2, Map.MAP_BLOCK_DEMANSION_Y / 2));
+            Spawn(res_obj_id, pos);
+        }
+    }
+
+    public void Spawn(int res_obj_id, Vector3 pos)
+    {
+        MapResourceProxy res = MapResourceCenter.GetResource(res_obj_id);
+        MapLODObject obj = res.resource.GetComponent<MapLODObject>();
+        obj.transform.position = pos;
+        obj.p = obj_list.AddLast(obj);
     }
 
     public void HideDetail()
