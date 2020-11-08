@@ -56,12 +56,6 @@ public class MapBlock : MapContainerObject
         }
         terrain.SetActive(true);
 
-        LinkedListNode<MapLODObject> lp = obj_list.First;
-        while (lp != null)
-        {
-            lp.Value.Show(level);
-        }
-
         if (level == 0)
         {
             ShowDetail();
@@ -69,6 +63,12 @@ public class MapBlock : MapContainerObject
         else
         {
             HideDetail();
+        }
+
+        LinkedListNode<MapLODObject> lp = obj_list.First;
+        while (lp != null)
+        {
+            lp.Value.Show(level);
         }
     }
 

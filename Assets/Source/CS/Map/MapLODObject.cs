@@ -24,7 +24,14 @@ public class MapLODObject : MonoBehaviour
         if(res != null)
         {
             res.Release();
+            res = null;
         }
+
+        if(resource[level] == 0)
+        {
+            return;
+        }
+
         res = MapResourceCenter.GetResource(resource[level]);
 
         res.resource.transform.SetParent(this.transform);
