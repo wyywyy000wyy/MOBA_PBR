@@ -155,18 +155,25 @@ public static class XLoader
             Debug.LogErrorFormat("[XLoader.Load] sent empty/null path!");
             return null;
         }
-#if UNITY_EDITOR && ! USE_BUNDLE_IN_EDITOR
-        Object obj = Resources.Load(Path.ChangeExtension(path, null), type);
+        Object obj = null;
+#if UNITY_EDITOR 
+        obj = Resources.Load(Path.ChangeExtension(path, null), type);
 
         if (obj == null)
         {
             obj = _LoadObjInEditorAt(path, type);
         }
 
-        return obj;
-#else
+        if(obj != null)
+        {
+            return obj;
+        }
+
+        //return obj;
+#endif
+        //#else
         string name = Path.ChangeExtension(path, null);
-        UnityEngine.Object obj = null;
+        //UnityEngine.Object obj = null;
 
         //Debug.LogFormat("[XLoader] can't find Asset({0} : {1}) in cache: ", name, type.ToString());
         XManifest.AssetInfo info = XManifest.Instance.Find(name);
@@ -242,7 +249,7 @@ public static class XLoader
         }
 
         return obj;
-#endif
+//#endif
     }
 
     private static Coroutine _StartCoroutine(IEnumerator em)

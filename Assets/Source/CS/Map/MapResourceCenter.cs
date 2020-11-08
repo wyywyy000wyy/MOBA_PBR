@@ -7,48 +7,9 @@ using XLua;
 [LuaCallCSharp]
 public static class MapResourceCenter 
 {
-
-
-    //public class ResrouceToken
-    //{
-    //    WeakReference<>
-    //}
-
-    class ResourceCache
-    {
-        public Stack<GameObject> stack;
-        GameObject ins;
-
-        public ResourceCache(GameObject obj, int capacity = 1)
-        {
-            ins = obj;
-            stack = new Stack<GameObject>(capacity);
-        }
-
-        public void Release(GameObject o)
-        {
-            stack.Push(o);
-        }
-
-        public GameObject New()
-        {
-            GameObject ret;
-            if (stack.Count > 0)
-            {
-                ret = stack.Pop();
-            }
-            else
-            {
-                ret = GameObject.Instantiate(ins);
-            }
-            return ret;
-        }
-    }
-    
-
     static Dictionary<int, ResourceConfig> configs = new Dictionary<int, ResourceConfig>();
 
-    static Dictionary<int, ResourceCache> caches = new Dictionary<int, ResourceCache>();
+    static Dictionary<int, MapResourceCache> caches = new Dictionary<int, MapResourceCache>();
 
     class ResourceConfig
     {
@@ -56,9 +17,9 @@ public static class MapResourceCenter
         public string path;
     }
 
-    public static GameObject GetResource(int resourceId)
+    public static MapResourceProxy GetResource(int resourceId)
     {
-        ResourceCache cache = caches[resourceId];
+        MapResourceCache cache = caches[resourceId];
         if(cache == null)
         {
             return null;
@@ -67,7 +28,13 @@ public static class MapResourceCenter
         return cache.New();
     }
 
-    public static void PreLoad(int resourceId)
+    public static void Start()
+    {
+        //configs = new Dictionary<int, ResourceConfig>();
+        //caches = new Dictionary<int, MapResourceCache>();
+    }
+
+    public static void PreLoad(int resourceId, Action cb)
     {
         ResourceConfig conf = configs[resourceId];
         if(conf == null)
@@ -75,16 +42,18 @@ public static class MapResourceCenter
             Debug.LogErrorFormat("RreLoad error, not conf {0}", resourceId);
             return;
         }
+
+
         XLoader.LoadAsync<GameObject>(conf.path, (UnityEngine.Object go) =>
         {
             GameObject g = go as GameObject;
-            ResourceCache cache = caches[resourceId];
-            if(cache != null)
+            if(MapResourceCenter.caches.ContainsKey(resourceId))
             {
                 return;
             }
-            cache = new ResourceCache(g);
+            MapResourceCache cache = new MapResourceCache(g);
             caches[resourceId] = cache;
+            cb();
         });
     }
 

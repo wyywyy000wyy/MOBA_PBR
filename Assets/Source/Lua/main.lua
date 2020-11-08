@@ -24,6 +24,8 @@ require("Base/global_func")
 require("Base/class")
 require("Base/behaviour_bridge")
 
+require("config")
+
 add_require("Map/Map")
 add_require("Map/MapController")
 

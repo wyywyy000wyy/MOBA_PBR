@@ -1,9 +1,9 @@
 MapController = class(BehaviourBridge)
 
 function MapController:ctor(SceneScriptRoot)
-    self.scene_script_root = U.GameObject.Find("Plane")
+    self.scene_script_root = U.GameObject.Find("SceneScriptRoot")
     self.camera = U.GameObject.Find("Main Camera")
-    self.camera_forward = U.GameObject.Find("Main Camera/Main Camera").transform.forward
+    self.camera_forward = U.GameObject.Find("Main Camera").transform.forward
     self:bind(self.scene_script_root)
 end
 
@@ -24,7 +24,7 @@ function MapController:bind_behaviour_funcs()
 end
 
 function MapController:OnBeginDrag()
-    LOG("OnBeginDrag", U.Input.mousePosition)
+    -- LOG("OnBeginDrag", U.Input.mousePosition)
     self.start_point = U.Input.mousePosition
     self.camera_pos = self.camera.transform.position
 
@@ -36,7 +36,7 @@ function MapController:OnBeginDrag()
 end
 
 function MapController:OnEndDrag()
-    LOG("OnEndDrag")
+    -- LOG("OnEndDrag")
     self.touch_dis = nil
     self.mode = nil
 end
@@ -44,7 +44,7 @@ end
 function MapController:OnDrag()
     -- ELOG("OnDrag", U.Input.touchCount)
     local dt = U.Input.mousePosition - self.start_point
-    LOG("OnDrag", dt.x, dt.y)
+    -- LOG("OnDrag", dt.x, dt.y)
     if U.Input.touchCount == 2 then
         local touch_dis = (U.Input.touches[0].position - U.Input.touches[1].position).magnitude
         if not self.touch_dis then
@@ -61,7 +61,7 @@ function MapController:OnDrag()
             self.touch_dis = nil
             self.camera_pos = self.camera.transform.position
         elseif self.mode == 1 then 
-            self.camera.transform.position = self.camera_pos + U.Vector3(dt.x,0,dt.y) * (0.005 * self.camera_pos.y)
+            self.camera.transform.position = self.camera_pos + U.Vector3(dt.x,0,dt.y) * (-0.005 * self.camera_pos.y)
         end
     end
     

@@ -31,11 +31,15 @@ public class MapDataInspector : Editor
                 for (int j = 0; j < Map.MAP_BLOCK_COUNT; ++j)
                 {
                     MapBlockData bd = new MapBlockData();
-                    bd.terrain = Random.Range(0, blockTerrainCount - 1);
+                    bd.terrain = Random.Range(1, blockTerrainCount);
                     td.blockList.Add(bd);
                 }
                 mapData.tileList.Add(td);
 ;            }
+            EditorUtility.SetDirty(mapData);
+
+            AssetDatabase.SaveAssets();
+            AssetDatabase.Refresh();
         }
     }
 
