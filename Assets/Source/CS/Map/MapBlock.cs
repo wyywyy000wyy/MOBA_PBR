@@ -49,7 +49,7 @@ public class MapBlock : MapContainerObject
         LinkedListNode<MapLODObject> lp = obj_list.First;
         while (lp != null)
         {
-            lp.Value.Show(2);
+            lp.Value.hide();
             lp = lp.Next;
         }
     }

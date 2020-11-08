@@ -36,12 +36,22 @@ public class MapLODObject : MonoBehaviour
 
         res = MapResourceCenter.GetResource(resource[level]);
 
-        res.resource.transform.position = Vector3.zero;
+        res.resource.transform.localPosition = Vector3.zero;
         res.resource.transform.localScale = Vector3.one * 0.01f;
         res.resource.transform.Rotate(new Vector3(0,Random.Range(0,360),0));
         res.resource.transform.SetParent(this.transform,false);
 
         res.resource.SetActive(true);
+    }
+
+    public void hide()
+    {
+        level = -1;
+        if (res != null)
+        {
+            res.Release();
+            res = null;
+        }
     }
 
     //void LateUpdate()
