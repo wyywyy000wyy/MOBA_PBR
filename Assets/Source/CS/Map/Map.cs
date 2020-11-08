@@ -87,8 +87,11 @@ public class Map : MonoBehaviour
     MapBlock[] blocks = new MapBlock[MAP_BLOCK_COUNT * MAP_TILE_COUNT];
 
     
-    Vector2Int LeftTop;
-    Vector2Int BottomRight;
+    Vector2Int[] LeftTop = new Vector2Int[3];
+    Vector2Int[] BottomRight = new Vector2Int[3];
+
+    Vector2Int LeftTopOld = new Vector2Int();
+    Vector2Int BottomRightOld = new Vector2Int();
 
     bool run = false;
 
@@ -96,109 +99,63 @@ public class Map : MonoBehaviour
 
     static readonly int MAX_BLOCK = 10 * 10;
 
-    int viewX = 3;
-    int viewY = 3;
-    int viewY2 = 1;
+    int[]  viewX =  { 1, 4 ,0};
+    int[] viewY = { 1, 4 , 0};
+    int[] viewY2 = { 1, 1, 0 };
     int curBlock = -1;
-    int preX = 0;
-    int preY = 0;
     int showBlocks = 0;
+    int curLevel = 1;
+    int preLvel = -1;
 
-    public void Move(int x, int y)
+
+    bool in_view(int x, int y)
+    {
+        if (LeftTop[curLevel].x > x || BottomRight[curLevel].x < x)
+            return false;
+        if (LeftTop[curLevel].y > y || BottomRight[curLevel].y < y)
+            return false;
+        return true;
+    }
+
+    public void Move(int x, int y, int level = 0)
     {
 
-        LeftTop.x = Mathf.Clamp(Mathf.Min(x - viewX, LeftTop.x), 0, MAP_BLOCK_COUNT_TOTAL_X - 1);
-        LeftTop.y = Mathf.Clamp(Mathf.Min(y - viewY2, LeftTop.y), 0, MAP_BLOCK_COUNT_TOTAL_Y - 1);
+        LeftTop[curLevel].x = Mathf.Clamp(x-viewX[curLevel], 0, MAP_BLOCK_COUNT_TOTAL_X - 1);
+        LeftTop[curLevel].y = Mathf.Clamp(y- viewY2[curLevel], 0, MAP_BLOCK_COUNT_TOTAL_Y - 1);
 
-        BottomRight.x = Mathf.Clamp(Mathf.Max(x + viewX, BottomRight.x), 0, MAP_BLOCK_COUNT_TOTAL_X - 1);
-        BottomRight.y = Mathf.Clamp(Mathf.Max(y + viewY, BottomRight.y), 0, MAP_BLOCK_COUNT_TOTAL_Y - 1);
 
-        int dx = BottomRight.x - LeftTop.x;
-        int dy = BottomRight.y - LeftTop.y;
+        BottomRight[curLevel].x = Mathf.Clamp(x + viewX[curLevel], 0, MAP_BLOCK_COUNT_TOTAL_X - 1);
+        BottomRight[curLevel].y = Mathf.Clamp(y + viewY[curLevel], 0, MAP_BLOCK_COUNT_TOTAL_Y - 1);
 
-        Debug.LogErrorFormat("{0}, {1}, {2}, {3}, {4}, {5}", LeftTop.x, LeftTop.y, BottomRight.x, BottomRight.y, dx, dy);
-        if (Mathf.Abs(x - preX) > 1 || Mathf.Abs(y - preY) > 1)
+
+        //LeftTop[curLevel].x = Mathf.Clamp(Mathf.Min(x - viewX[curLevel], LeftTop[curLevel].x), 0, MAP_BLOCK_COUNT_TOTAL_X - 1);
+        //LeftTop[curLevel].y = Mathf.Clamp(Mathf.Min(y - viewY2[curLevel], LeftTop[curLevel].y), 0, MAP_BLOCK_COUNT_TOTAL_Y - 1);
+
+        //BottomRight[curLevel].x = Mathf.Clamp(Mathf.Max(x + viewX[curLevel], BottomRight[curLevel].x), 0, MAP_BLOCK_COUNT_TOTAL_X - 1);
+        //BottomRight[curLevel].y = Mathf.Clamp(Mathf.Max(y + viewY[curLevel], BottomRight[curLevel].y), 0, MAP_BLOCK_COUNT_TOTAL_Y - 1);
+
+        for(int ry = LeftTopOld.y; ry <= BottomRightOld.y; ++ry)
         {
-            for (int ty = LeftTop.y; ty <= BottomRight.y; ++ty)
+            for(int rx = LeftTopOld.x; rx <= BottomRightOld.x; ++rx)
             {
-                for (int tx = LeftTop.x; tx <= BottomRight.x; ++tx)
+                if(!in_view(rx, ry))
                 {
-                    int block_id = ty * MAP_BLOCK_COUNT_TOTAL_X + tx;
+                    int block_id = ry * MAP_BLOCK_COUNT_TOTAL_X + rx;
                     ReleaseResource(block_id);
                 }
             }
-            dx = 0;
-            dy = 0;
-
-            LeftTop.x = Mathf.Clamp(x - viewX, 0, MAP_BLOCK_COUNT_TOTAL_X - 1);
-            LeftTop.y = Mathf.Clamp(y - viewY2, 0, MAP_BLOCK_COUNT_TOTAL_Y - 1);
-
-            BottomRight.x = Mathf.Clamp(x + viewX, 0, MAP_BLOCK_COUNT_TOTAL_X - 1);
-            BottomRight.y = Mathf.Clamp(y + viewY, 0, MAP_BLOCK_COUNT_TOTAL_Y - 1);
-        }
-        preX = x;
-        preY = y;
-
-        if (dx * dy > MAX_BLOCK)
-        {
-            if(dy > dx)
-            {
-                if(dy * 2> LeftTop.y + BottomRight.y)
-                {
-                    int py = LeftTop.y;
-                    LeftTop.y++;
-
-                    for(int i = LeftTop.x; i <= BottomRight.x; ++i)
-                    {
-                        int block_id = py * MAP_BLOCK_COUNT_TOTAL_X + i;
-                        ReleaseResource(block_id);
-                    }
-                }
-                else
-                {
-                    int py = BottomRight.y;
-                    BottomRight.y--;
-
-                    for (int i = LeftTop.x; i <= BottomRight.x; ++i)
-                    {
-                        int block_id = py * MAP_BLOCK_COUNT_TOTAL_X + i;
-                        ReleaseResource(block_id);
-                    }
-                }
-            }
-            else
-            {
-                if(dx * 2 > LeftTop.x + BottomRight.x)
-                {
-                    int px = LeftTop.x;
-                    LeftTop.x++;
-
-                    for (int i = LeftTop.y; i <= BottomRight.y; ++i)
-                    {
-                        int block_id = i * MAP_BLOCK_COUNT_TOTAL_X + px;
-                        ReleaseResource(block_id);
-                    }
-                }
-                else
-                {
-                    int px = BottomRight.x;
-                    BottomRight.x--;
-
-                    for (int i = LeftTop.y; i <= BottomRight.y; ++i)
-                    {
-                        int block_id = i * MAP_BLOCK_COUNT_TOTAL_X + px;
-                        ReleaseResource(block_id);
-                    }
-                }
-            }
         }
 
-        showBlocks = (BottomRight.x - LeftTop.x) * (BottomRight.y - LeftTop.y);
+        Debug.LogFormat("LeftTopOld ={0},{1} BottomRightOld = {2},{3}", LeftTopOld.x, LeftTopOld.y, BottomRightOld.x, BottomRightOld.y);
+        Debug.LogFormat("LeftTop[curLevel] ={0},{1} BottomRight[curLevel] = {2},{3}", LeftTop[curLevel].x, LeftTop[curLevel].y, BottomRight[curLevel].x, BottomRight[curLevel].y);
 
-        int startX = Mathf.Max(0, x - viewX);
-        int startY = Mathf.Max(0, y - viewY2);
-        int endX = Mathf.Min(MAP_BLOCK_COUNT_TOTAL_X - 1, x + viewX);
-        int endY = Mathf.Min(MAP_BLOCK_COUNT_TOTAL_Y - 1, y + viewY);
+ 
+        showBlocks = (BottomRight[curLevel].x - LeftTop[curLevel].x) * (BottomRight[curLevel].y - LeftTop[curLevel].y);
+
+        int startX = Mathf.Max(0, x - viewX[curLevel]);
+        int startY = Mathf.Max(0, y - viewY2[curLevel]);
+        int endX = Mathf.Min(MAP_BLOCK_COUNT_TOTAL_X - 1, x + viewX[curLevel]);
+        int endY = Mathf.Min(MAP_BLOCK_COUNT_TOTAL_Y - 1, y + viewY[curLevel]);
 
         for (int i = startY; i <= endY; ++i)
         {
@@ -206,9 +163,15 @@ public class Map : MonoBehaviour
             {
                 int block_id = i * MAP_BLOCK_COUNT_TOTAL_X + j;
                 MapBlock mb = blocks[block_id];
-                mb.Show();
+                mb.Show(curLevel);
             }
         }
+
+        LeftTopOld.x = LeftTop[curLevel].x;
+        LeftTopOld.y = LeftTop[curLevel].y;
+
+        BottomRightOld.x = BottomRight[curLevel].x;
+        BottomRightOld.y = BottomRight[curLevel].y;
     }
 
     void ReleaseResource(int block_id)
@@ -221,6 +184,13 @@ public class Map : MonoBehaviour
     void Start()
     {
         ins = this;
+        for(int i = 0; i < 3; ++i)
+        {
+            LeftTop[i] = new Vector2Int();
+            BottomRight[i] = new Vector2Int();
+            //LeftTopOld[i] = new Vector2Int();
+            //BottomRightOld[i] = new Vector2Int();
+        }
     }
 
 
@@ -251,7 +221,7 @@ public class Map : MonoBehaviour
                     {
                         int yy = ty * MAP_BLOCK_COUNT_Y + by;
                         int xx = tx * MAP_BLOCK_COUNT_X + bx;
-                        int block_id = yy * MAP_TILE_COUNT_X * MAP_BLOCK_COUNT_X + xx;
+                        int block_id = yy * MAP_BLOCK_COUNT_TOTAL_X + xx;
                         MapBlock block = new MapBlock(tile, block_id, td.blockList[by*MAP_BLOCK_COUNT_X + bx]);
                         block.basePos.x = tile.basePos.x + bx * MAP_BLOCK_DEMANSION_X;
                         block.basePos.z = tile.basePos.z + by * MAP_BLOCK_DEMANSION_Y;
@@ -276,7 +246,7 @@ public class Map : MonoBehaviour
         tpos.z = cp.y;
         targetPos = cp + tpos;
 
-        int dl = GetDisplayLevel();
+        curLevel = GetDisplayLevel();
 
         ShowAtPos(targetPos);
     }
@@ -308,12 +278,13 @@ public class Map : MonoBehaviour
     void ShowAtPos(Vector3 targetPos)
     {
         int block_id = PosToBlockId(targetPos);
-        if(curBlock == block_id)
+        if(curBlock == block_id && preLvel == curLevel)
         {
             return;
         }
-        Move(block_id % MAP_BLOCK_COUNT_TOTAL_X, block_id / MAP_BLOCK_COUNT_TOTAL_X);
+        Move(block_id % MAP_BLOCK_COUNT_TOTAL_X, block_id / MAP_BLOCK_COUNT_TOTAL_X, curLevel);
         curBlock = block_id;
+        preLvel = curLevel;
 
         Debug.LogFormat("showBlocks {0}", showBlocks);
     }

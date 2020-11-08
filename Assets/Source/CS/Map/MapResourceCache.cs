@@ -17,6 +17,7 @@ public class MapResourceCache
 
     public void Release(MapResourceProxy o)
     {
+        o.resource.SetActive(false);
         stack.Push(o);
     }
 
@@ -36,6 +37,7 @@ public class MapResourceCache
         {
             ret = new MapResourceProxy(this, GameObject.Instantiate(ins));
         }
+        ret.resource.SetActive(false);
         return ret;
     }
 }

@@ -17,6 +17,9 @@ public class MapBlock : MapContainerObject
 
     List<MapResourceProxy> resources = new List<MapResourceProxy>();
 
+    //Dictionary<int, MapLODObject> objs = new Dictionary<int, MapLODObject>();
+
+    LinkedList<MapLODObject> obj_list = new LinkedList<MapLODObject>();
 
     GameObject GetResource(int resrouce_id)
     {
@@ -41,9 +44,10 @@ public class MapBlock : MapContainerObject
             resources[i].Release();
             resources.RemoveAt(i);
         }
+        terrain = null;
     }
 
-    public void Show()
+    public void Show(int level)
     {
         if(terrain == null)
         {
@@ -51,6 +55,21 @@ public class MapBlock : MapContainerObject
             terrain.transform.position = basePos;
         }
         terrain.SetActive(true);
+
+        LinkedListNode<MapLODObject> lp = obj_list.First;
+        while (lp != null)
+        {
+            lp.Value.Show(level);
+        }
+
+        if (level == 0)
+        {
+            ShowDetail();
+        }
+        else
+        {
+            HideDetail();
+        }
     }
 
     public void ShowDetail()

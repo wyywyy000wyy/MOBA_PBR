@@ -735,7 +735,7 @@ MonoBehaviour:
   mapLevel0: {fileID: 542785663}
   mapLevel1: {fileID: 170462181}
   mapLevel2: {fileID: 1858332099}
-  scaleValue0: 866.025
+  scaleValue0: 3
   scaleValue1: 8660.25
 --- !u!1001 &861348047
 PrefabInstance:
