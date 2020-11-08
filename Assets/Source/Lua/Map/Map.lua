@@ -84,4 +84,6 @@ function Map:OnEntityLoaded()
     -- end
 
     CS.Map.Instance:StartMap()
+
+    
 end

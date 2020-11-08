@@ -52,7 +52,8 @@ public class BundlePackRule
             }
         }
                     
-        switch (matchRule.rule)
+        //switch (matchRule.rule)
+        switch(BundlePackRuleDefine.PackOneByOne)
         {
             case BundlePackRuleDefine.PackOneByOne:
 #if UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN

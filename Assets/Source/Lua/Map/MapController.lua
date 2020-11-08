@@ -5,6 +5,8 @@ function MapController:ctor(SceneScriptRoot)
     self.camera = U.GameObject.Find("Main Camera")
     self.camera_forward = U.GameObject.Find("Main Camera").transform.forward
     self:bind(self.scene_script_root)
+
+    self.isDraging = false;
 end
 
 function MapController:bridge_type()
@@ -19,12 +21,27 @@ function MapController:bind_behaviour_funcs()
         [Func.OnBeginDrag] = self:wrap_func("OnBeginDrag"),
         [Func.OnEndDrag] =  self:wrap_func("OnEndDrag"),
         [Func.OnDrag] =  self:wrap_func("OnDrag"),
+        [Func.Update] =  self:wrap_func("Update"),
     }
 
 end
 
+function MapController:Update()
+    if (U.Input.GetMouseButtonDown(0)) then
+        if(U.EventSystem.current:IsPointerOverGameObject() == false) then
+            self:OnBeginDrag();
+        end
+    elseif(U.Input.GetMouseButtonUp(0) and self.isDraging) then
+        self:OnEndDrag();      
+    elseif(U.Input.GetMouseButton(0) and self.isDraging) then   
+        self:OnDrag();
+    end
+end
+
 function MapController:OnBeginDrag()
     -- LOG("OnBeginDrag", U.Input.mousePosition)
+    self.isDraging = true;
+
     self.start_point = U.Input.mousePosition
     self.camera_pos = self.camera.transform.position
 
@@ -37,6 +54,7 @@ end
 
 function MapController:OnEndDrag()
     -- LOG("OnEndDrag")
+    self.isDraging = false
     self.touch_dis = nil
     self.mode = nil
 end
@@ -52,7 +70,12 @@ function MapController:OnDrag()
             self.mode = 2
         else
             -- self.camera.transform.position = self.camera_pos + U.Vector3(0,touch_dis - self.touch_dis,0) * 0.05
-            self.camera.transform.position = self.camera_pos + self.camera_forward * (touch_dis - self.touch_dis) * 0.05
+            local pos = self.camera_pos + self.camera_forward * (touch_dis - self.touch_dis) * 0.05
+            if pos.y < 1 then
+                local dy = (1  - self.camera_pos.y) /  self.camera_forward.y 
+                pos = self.camera_pos + self.camera_forward * dy
+            end
+            self.camera.transform.position = pos
             
             
         end

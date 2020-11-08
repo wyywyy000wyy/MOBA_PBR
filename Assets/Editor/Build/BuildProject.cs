@@ -55,7 +55,7 @@ public class BuildProject : Editor
 
         BuildTargetGroup build_group = BuildTargetGroup.Android;
         BuildTarget buildTarget = BuildTarget.Android;
-        //EditorUserBuildSettings.SwitchActiveBuildTarget(build_group, buildTarget);
+        EditorUserBuildSettings.SwitchActiveBuildTarget(build_group, buildTarget);
 
         EditorUserBuildSettings.development = true;
         EditorUserBuildSettings.connectProfiler = true;
