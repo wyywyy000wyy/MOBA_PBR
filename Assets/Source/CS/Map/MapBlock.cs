@@ -20,6 +20,9 @@ public class MapBlock : MapContainerObject
     //Dictionary<int, MapLODObject> objs = new Dictionary<int, MapLODObject>();
 
     LinkedList<MapLODObject> obj_list = new LinkedList<MapLODObject>();
+    LinkedList<MapLODObject> high_obj_list = new LinkedList<MapLODObject>();
+
+    int prelevel = -1;
 
     GameObject GetResource(int resrouce_id)
     {
@@ -52,32 +55,70 @@ public class MapBlock : MapContainerObject
             lp.Value.hide();
             lp = lp.Next;
         }
+
+        LinkedListNode<MapLODObject> lp2 = high_obj_list.First;
+        while (lp2 != null)
+        {
+            lp2.Value.hide();
+            lp2 = lp2.Next;
+        }
+        
+
+        prelevel = -1;
     }
 
     public void Show(int level)
     {
-        if(terrain == null)
+        if(prelevel == level)
+        {
+            return;
+        }
+
+        if(level < 2 && terrain == null)
         {
             terrain = GetResource(data.terrain);
             terrain.transform.position = basePos;
         }
-        terrain.SetActive(true);
-
-        if (level == 0)
+        if(level < 2)
         {
-            ShowDetail();
+            terrain.SetActive(true);
         }
         else
         {
-            HideDetail();
+            if(terrain != null)
+            {
+                terrain.SetActive(false);
+            }
         }
 
-        LinkedListNode<MapLODObject> lp = obj_list.First;
-        while (lp != null)
+        //if (level <= 1)
         {
-            lp.Value.Show(level);
-            lp = lp.Next;
+            ShowDetail();
         }
+        //else
+        //{
+        //    HideDetail();
+        //}
+
+        if(prelevel < 2 || level < 2)
+        {
+            LinkedListNode<MapLODObject> lp = obj_list.First;
+            while (lp != null)
+            {
+                lp.Value.Show(level);
+                lp = lp.Next;
+            }
+        }
+        {
+            LinkedListNode<MapLODObject> lp = high_obj_list.First;
+            while (lp != null)
+            {
+                lp.Value.Show(level);
+                lp = lp.Next;
+            }
+        }
+        prelevel = level;
+
     }
 
     public void ShowDetail()
@@ -89,7 +130,23 @@ public class MapBlock : MapContainerObject
         int count = 100;
         for(int i = 0; i < count; ++i)
         {
-            int res_obj_id = Random.Range(1001,1004);
+            int res_obj_id = Random.Range(1003,1010);
+            Vector3 pos = new Vector3(basePos.x + Random.Range((float)-Map.MAP_BLOCK_DEMANSION_X / 2, Map.MAP_BLOCK_DEMANSION_X / 2), basePos.y, basePos.z + Random.Range((float)-Map.MAP_BLOCK_DEMANSION_Y / 2, Map.MAP_BLOCK_DEMANSION_Y / 2));
+            Spawn(res_obj_id, pos);
+        }
+
+        count = 10;
+        for (int i = 0; i < count; ++i)
+        {
+            int res_obj_id = Random.Range(1002, 1002);
+            Vector3 pos = new Vector3(basePos.x + Random.Range((float)-Map.MAP_BLOCK_DEMANSION_X / 2, Map.MAP_BLOCK_DEMANSION_X / 2), basePos.y, basePos.z + Random.Range((float)-Map.MAP_BLOCK_DEMANSION_Y / 2, Map.MAP_BLOCK_DEMANSION_Y / 2));
+            Spawn(res_obj_id, pos);
+        }
+
+        count = 2;
+        for (int i = 0; i < count; ++i)
+        {
+            int res_obj_id = Random.Range(1001, 1001);
             Vector3 pos = new Vector3(basePos.x + Random.Range((float)-Map.MAP_BLOCK_DEMANSION_X / 2, Map.MAP_BLOCK_DEMANSION_X / 2), basePos.y, basePos.z + Random.Range((float)-Map.MAP_BLOCK_DEMANSION_Y / 2, Map.MAP_BLOCK_DEMANSION_Y / 2));
             Spawn(res_obj_id, pos);
         }
@@ -100,7 +157,14 @@ public class MapBlock : MapContainerObject
         MapResourceProxy res = MapResourceCenter.GetResource(res_obj_id);
         MapLODObject obj = res.resource.GetComponent<MapLODObject>();
         obj.transform.position = pos;
-        obj.p = obj_list.AddLast(obj);
+        if(obj.resource[2] != 0)
+        {
+            obj.p = high_obj_list.AddLast(obj);
+        }
+        else
+        {
+            obj.p = obj_list.AddLast(obj);
+        }
     }
 
     public void HideDetail()
@@ -114,5 +178,6 @@ public class MapBlock : MapContainerObject
         {
             terrain.SetActive(false);
         }
+        prelevel = -1;
     }
 }

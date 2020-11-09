@@ -19,9 +19,10 @@ public static class MapResourceCenter
 
     public static MapResourceProxy GetResource(int resourceId)
     {
-        MapResourceCache cache = caches[resourceId];
-        if(cache == null)
+        MapResourceCache cache;//= caches[resourceId];
+        if(!caches.TryGetValue(resourceId, out cache))
         {
+            Debug.LogErrorFormat("not resrouce {0}", resourceId);
             return null;
         }
 
@@ -52,6 +53,7 @@ public static class MapResourceCenter
                 return;
             }
             MapResourceCache cache = new MapResourceCache(g);
+            Debug.LogFormat("PreLoad {0}", resourceId);
             caches[resourceId] = cache;
             cb();
         });
@@ -59,6 +61,7 @@ public static class MapResourceCenter
 
     public static void RegisterConfig(int id, string path)
     {
+        Debug.LogFormat("RegisterConfig {0}", id);
         ResourceConfig conf = new ResourceConfig();
         conf.id = id;
         conf.path = path;

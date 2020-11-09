@@ -99,14 +99,13 @@ public class Map : MonoBehaviour
 
     static readonly int MAX_BLOCK = 10 * 10;
 
-    int[]  viewX =  { 1, 4 ,0};
-    int[] viewY = { 1, 4 , 0};
-    int[] viewY2 = { 1, 1, 0 };
+    int[]  viewX =  { 1, 4 ,8};
+    int[] viewY = { 1, 4 , 8};
+    int[] viewY2 = { 1, 1, 2 };
     int curBlock = -1;
     int showBlocks = 0;
     int curLevel = 1;
     int preLvel = -1;
-
 
     bool in_view(int x, int y)
     {
@@ -126,13 +125,6 @@ public class Map : MonoBehaviour
 
         BottomRight[curLevel].x = Mathf.Clamp(x + viewX[curLevel], 0, MAP_BLOCK_COUNT_TOTAL_X - 1);
         BottomRight[curLevel].y = Mathf.Clamp(y + viewY[curLevel], 0, MAP_BLOCK_COUNT_TOTAL_Y - 1);
-
-
-        //LeftTop[curLevel].x = Mathf.Clamp(Mathf.Min(x - viewX[curLevel], LeftTop[curLevel].x), 0, MAP_BLOCK_COUNT_TOTAL_X - 1);
-        //LeftTop[curLevel].y = Mathf.Clamp(Mathf.Min(y - viewY2[curLevel], LeftTop[curLevel].y), 0, MAP_BLOCK_COUNT_TOTAL_Y - 1);
-
-        //BottomRight[curLevel].x = Mathf.Clamp(Mathf.Max(x + viewX[curLevel], BottomRight[curLevel].x), 0, MAP_BLOCK_COUNT_TOTAL_X - 1);
-        //BottomRight[curLevel].y = Mathf.Clamp(Mathf.Max(y + viewY[curLevel], BottomRight[curLevel].y), 0, MAP_BLOCK_COUNT_TOTAL_Y - 1);
 
         for(int ry = LeftTopOld.y; ry <= BottomRightOld.y; ++ry)
         {
@@ -269,6 +261,8 @@ public class Map : MonoBehaviour
 
     public int PosToBlockId(Vector3 targetPos)
     {
+        targetPos.x += (MAP_BLOCK_DEMANSION_X / 2);
+        targetPos.z += (MAP_BLOCK_DEMANSION_Y / 2);
         int px = (int)targetPos.x / MAP_BLOCK_DEMANSION_X;
         int py = (int)targetPos.z / MAP_BLOCK_DEMANSION_Y;
 

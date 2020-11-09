@@ -56,16 +56,19 @@ function Map:OnMapLoaded()
 
     -- CS.MapResourceCenter.Start()
     local count = 0
+    local loaded_count = 0
+    for _, v in pairs (cfg_map_resource) do
+        count = count + 1
+    end
+
     for _, v in pairs (cfg_map_resource) do
         CS.MapResourceCenter.PreLoad(v.ID, function()
-            count = count + 1
-            if count == #cfg_map_resource then
+            loaded_count = loaded_count + 1
+            if count <= loaded_count then
                 self:OnEntityLoaded()
             end
         end)
     end
-
-
 end
 
 function Map:OnEntityLoaded()

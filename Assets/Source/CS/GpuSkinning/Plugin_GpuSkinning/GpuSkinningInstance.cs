@@ -26,7 +26,7 @@ public class GpuSkinningInstance : MonoBehaviour {
 
 	void Awake() 
 	{
-		_material = GetComponent<MeshRenderer>().material;
+		_material = GetComponent<MeshRenderer>().sharedMaterial;
 	}
 
 	// Use this for initialization
