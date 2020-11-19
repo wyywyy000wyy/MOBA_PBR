@@ -4,7 +4,8 @@
     {
 		_MainTex("Texture", 2D) = "white" {}
 		_NormalTex("Normal Tex", 2D) = "white" {}
-    }
+		_LightInstense("Light Instense", Float) = 1
+	}
     SubShader
     {
         Tags {"LightMode" = "ForwardBase" "RenderType"="Opaque" }
@@ -39,6 +40,7 @@
 			sampler2D _NormalTex;
             float4 _MainTex_ST;
 
+			float _LightInstense;
             v2f vert (appdata v)
             {
                 v2f o;
@@ -62,23 +64,22 @@
             {
                 // sample the texture
                 fixed4 col = tex2D(_MainTex, i.uv);
-				half3 normal = tex2D(_NormalTex, i.uv).rgb;
-				normal = normal.xyz * 2 - 1;
+				half3 normal = tex2D(_NormalTex, i.uv).rbg * 2 - 1;
 				//half3 normal = UnpackNormal(tex2D(_NormalTex, i.uv));
 				float3 worldNormal =  normalize(mul((float3x3)transpose(UNITY_MATRIX_M), normal.xyz));
 				float3 viewDir = normalize(i.viewDir);
 				float3 H = normalize(i.lightDir + viewDir);
 
-				float dx = 0.6;
+				float dx = 0.5;
 
 				float4 diffuse = dx *  max(0, dot(worldNormal, i.lightDir));
 
-				float shininess = 256;
+				float shininess = 32;
 				float4 specular = (1 - dx) * pow(max(0, dot(H, worldNormal)), shininess);
 
-				col = col * (diffuse + specular);
-				col.rgb = i.lightDir;
-				col.rgb = normal;
+				col = col * (diffuse + specular) * _LightInstense;
+				//col.rgb = i.lightDir;
+				//col.rgb = normal;
                 // apply fog
                 return col;
             }
