@@ -79,7 +79,7 @@ public class SpritePostprocessor : AssetPostprocessor
             return TextureQuaility.Hight;
         }
 
-        return TextureQuaility.Low;
+        return TextureQuaility.Hight;
     }
 
     public static void Deal(TextureImporter textureImporter, string assetPath)

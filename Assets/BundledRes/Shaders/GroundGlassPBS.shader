@@ -149,7 +149,7 @@
 				float specularValue = tex2D(_SpecularTex, i.uv).r;
 				float Metallic = _Metallic;// 0.035;// tex2D(_MetallicTex, i.uv).r;
 				float Roughness = tex2D(_RoughnessTex, i.uv).r;
-				float AO = tex2D(_AOTex, i.uv).r * NoL;
+				float AO = 1;// tex2D(_AOTex, i.uv).r * NoL;
 
 				//float Roughness;
 				float3 SpecularColor = ComputeF0(specularValue, col, _Metallic);
@@ -164,11 +164,11 @@
 				float3 BaseColor = col.rgb;
 				float3 Diffuse = Diffuse_Lambert(BaseColor - BaseColor * Metallic) *NoL;
 
-				float lightIns = AO * _LightInstense;
+				float lightIns = /*AO * */_LightInstense;
 				col.rgb = (Specular/* + Diffuse*/)* lightIns;
 				//col.rgb = (/*Specular + */Diffuse)* lightIns;
-				col.rgb = (Specular + Diffuse) * lightIns;
-				col.rgb = NoL;
+				//col.rgb = (Specular + Diffuse) * lightIns;
+				//col.rgb = NoL;
 				//col.rgb = Specular * lightIns;
 
                 return col;

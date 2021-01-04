@@ -1,130 +1,368 @@
 fileFormatVersion: 2
 guid: 929e0c281466c1743b2cc36d7a1573ed
 ModelImporter:
-  serializedVersion: 23
-  fileIDToRecycleName:
-    100000: Bip001
-    100002: Bip001 Head
-    100004: Bip001 L Calf
-    100006: Bip001 L Clavicle
-    100008: Bip001 L Finger0
-    100010: Bip001 L Foot
-    100012: Bip001 L Forearm
-    100014: Bip001 L Hand
-    100016: Bip001 L Thigh
-    100018: Bip001 L Toe0
-    100020: Bip001 L UpperArm
-    100022: Bip001 Neck
-    100024: Bip001 Pelvis
-    100026: Bip001 R Calf
-    100028: Bip001 R Clavicle
-    100030: Bip001 R Finger0
-    100032: Bip001 R Foot
-    100034: Bip001 R Forearm
-    100036: Bip001 R Hand
-    100038: Bip001 R Thigh
-    100040: Bip001 R Toe0
-    100042: Bip001 R UpperArm
-    100044: Bip001 Spine
-    100046: Bone001
-    100048: Bone002
-    100050: Bone003
-    100052: Bone004
-    100054: Bone005
-    100056: Bone006
-    100058: Bone007
-    100060: Bone008
-    100062: Bone010
-    100064: Bone011
-    100066: Bone013
-    100068: Bone014
-    100070: Bone016
-    100072: Bone017
-    100074: Bone018
-    100076: Bone019
-    100078: Bone020
-    100080: Bone021
-    100082: Bone022
-    100084: Bone024
-    100086: Bone025
-    100088: Bone027
-    100090: Bone028
-    100092: Bone030
-    100094: Bone031
-    100096: Bone032
-    100098: Bone033
-    100100: Bone034
-    100102: Bone035
-    100104: Bone036
-    100106: Bone037
-    100108: hulu
-    100110: //RootNode
-    100112: weapon
-    400000: Bip001
-    400002: Bip001 Head
-    400004: Bip001 L Calf
-    400006: Bip001 L Clavicle
-    400008: Bip001 L Finger0
-    400010: Bip001 L Foot
-    400012: Bip001 L Forearm
-    400014: Bip001 L Hand
-    400016: Bip001 L Thigh
-    400018: Bip001 L Toe0
-    400020: Bip001 L UpperArm
-    400022: Bip001 Neck
-    400024: Bip001 Pelvis
-    400026: Bip001 R Calf
-    400028: Bip001 R Clavicle
-    400030: Bip001 R Finger0
-    400032: Bip001 R Foot
-    400034: Bip001 R Forearm
-    400036: Bip001 R Hand
-    400038: Bip001 R Thigh
-    400040: Bip001 R Toe0
-    400042: Bip001 R UpperArm
-    400044: Bip001 Spine
-    400046: Bone001
-    400048: Bone002
-    400050: Bone003
-    400052: Bone004
-    400054: Bone005
-    400056: Bone006
-    400058: Bone007
-    400060: Bone008
-    400062: Bone010
-    400064: Bone011
-    400066: Bone013
-    400068: Bone014
-    400070: Bone016
-    400072: Bone017
-    400074: Bone018
-    400076: Bone019
-    400078: Bone020
-    400080: Bone021
-    400082: Bone022
-    400084: Bone024
-    400086: Bone025
-    400088: Bone027
-    400090: Bone028
-    400092: Bone030
-    400094: Bone031
-    400096: Bone032
-    400098: Bone033
-    400100: Bone034
-    400102: Bone035
-    400104: Bone036
-    400106: Bone037
-    400108: //RootNode
-    400110: hulu
-    400112: weapon
-    2100000: hulu
-    4300000: hulu
-    7400000: Take 001
-    9500000: //RootNode
-    13700000: hulu
+  serializedVersion: 19301
+  internalIDToNameTable:
+  - first:
+      1: 100000
+    second: Bip001
+  - first:
+      1: 100002
+    second: Bip001 Head
+  - first:
+      1: 100004
+    second: Bip001 L Calf
+  - first:
+      1: 100006
+    second: Bip001 L Clavicle
+  - first:
+      1: 100008
+    second: Bip001 L Finger0
+  - first:
+      1: 100010
+    second: Bip001 L Foot
+  - first:
+      1: 100012
+    second: Bip001 L Forearm
+  - first:
+      1: 100014
+    second: Bip001 L Hand
+  - first:
+      1: 100016
+    second: Bip001 L Thigh
+  - first:
+      1: 100018
+    second: Bip001 L Toe0
+  - first:
+      1: 100020
+    second: Bip001 L UpperArm
+  - first:
+      1: 100022
+    second: Bip001 Neck
+  - first:
+      1: 100024
+    second: Bip001 Pelvis
+  - first:
+      1: 100026
+    second: Bip001 R Calf
+  - first:
+      1: 100028
+    second: Bip001 R Clavicle
+  - first:
+      1: 100030
+    second: Bip001 R Finger0
+  - first:
+      1: 100032
+    second: Bip001 R Foot
+  - first:
+      1: 100034
+    second: Bip001 R Forearm
+  - first:
+      1: 100036
+    second: Bip001 R Hand
+  - first:
+      1: 100038
+    second: Bip001 R Thigh
+  - first:
+      1: 100040
+    second: Bip001 R Toe0
+  - first:
+      1: 100042
+    second: Bip001 R UpperArm
+  - first:
+      1: 100044
+    second: Bip001 Spine
+  - first:
+      1: 100046
+    second: Bone001
+  - first:
+      1: 100048
+    second: Bone002
+  - first:
+      1: 100050
+    second: Bone003
+  - first:
+      1: 100052
+    second: Bone004
+  - first:
+      1: 100054
+    second: Bone005
+  - first:
+      1: 100056
+    second: Bone006
+  - first:
+      1: 100058
+    second: Bone007
+  - first:
+      1: 100060
+    second: Bone008
+  - first:
+      1: 100062
+    second: Bone010
+  - first:
+      1: 100064
+    second: Bone011
+  - first:
+      1: 100066
+    second: Bone013
+  - first:
+      1: 100068
+    second: Bone014
+  - first:
+      1: 100070
+    second: Bone016
+  - first:
+      1: 100072
+    second: Bone017
+  - first:
+      1: 100074
+    second: Bone018
+  - first:
+      1: 100076
+    second: Bone019
+  - first:
+      1: 100078
+    second: Bone020
+  - first:
+      1: 100080
+    second: Bone021
+  - first:
+      1: 100082
+    second: Bone022
+  - first:
+      1: 100084
+    second: Bone024
+  - first:
+      1: 100086
+    second: Bone025
+  - first:
+      1: 100088
+    second: Bone027
+  - first:
+      1: 100090
+    second: Bone028
+  - first:
+      1: 100092
+    second: Bone030
+  - first:
+      1: 100094
+    second: Bone031
+  - first:
+      1: 100096
+    second: Bone032
+  - first:
+      1: 100098
+    second: Bone033
+  - first:
+      1: 100100
+    second: Bone034
+  - first:
+      1: 100102
+    second: Bone035
+  - first:
+      1: 100104
+    second: Bone036
+  - first:
+      1: 100106
+    second: Bone037
+  - first:
+      1: 100108
+    second: hulu
+  - first:
+      1: 100110
+    second: //RootNode
+  - first:
+      1: 100112
+    second: weapon
+  - first:
+      4: 400000
+    second: Bip001
+  - first:
+      4: 400002
+    second: Bip001 Head
+  - first:
+      4: 400004
+    second: Bip001 L Calf
+  - first:
+      4: 400006
+    second: Bip001 L Clavicle
+  - first:
+      4: 400008
+    second: Bip001 L Finger0
+  - first:
+      4: 400010
+    second: Bip001 L Foot
+  - first:
+      4: 400012
+    second: Bip001 L Forearm
+  - first:
+      4: 400014
+    second: Bip001 L Hand
+  - first:
+      4: 400016
+    second: Bip001 L Thigh
+  - first:
+      4: 400018
+    second: Bip001 L Toe0
+  - first:
+      4: 400020
+    second: Bip001 L UpperArm
+  - first:
+      4: 400022
+    second: Bip001 Neck
+  - first:
+      4: 400024
+    second: Bip001 Pelvis
+  - first:
+      4: 400026
+    second: Bip001 R Calf
+  - first:
+      4: 400028
+    second: Bip001 R Clavicle
+  - first:
+      4: 400030
+    second: Bip001 R Finger0
+  - first:
+      4: 400032
+    second: Bip001 R Foot
+  - first:
+      4: 400034
+    second: Bip001 R Forearm
+  - first:
+      4: 400036
+    second: Bip001 R Hand
+  - first:
+      4: 400038
+    second: Bip001 R Thigh
+  - first:
+      4: 400040
+    second: Bip001 R Toe0
+  - first:
+      4: 400042
+    second: Bip001 R UpperArm
+  - first:
+      4: 400044
+    second: Bip001 Spine
+  - first:
+      4: 400046
+    second: Bone001
+  - first:
+      4: 400048
+    second: Bone002
+  - first:
+      4: 400050
+    second: Bone003
+  - first:
+      4: 400052
+    second: Bone004
+  - first:
+      4: 400054
+    second: Bone005
+  - first:
+      4: 400056
+    second: Bone006
+  - first:
+      4: 400058
+    second: Bone007
+  - first:
+      4: 400060
+    second: Bone008
+  - first:
+      4: 400062
+    second: Bone010
+  - first:
+      4: 400064
+    second: Bone011
+  - first:
+      4: 400066
+    second: Bone013
+  - first:
+      4: 400068
+    second: Bone014
+  - first:
+      4: 400070
+    second: Bone016
+  - first:
+      4: 400072
+    second: Bone017
+  - first:
+      4: 400074
+    second: Bone018
+  - first:
+      4: 400076
+    second: Bone019
+  - first:
+      4: 400078
+    second: Bone020
+  - first:
+      4: 400080
+    second: Bone021
+  - first:
+      4: 400082
+    second: Bone022
+  - first:
+      4: 400084
+    second: Bone024
+  - first:
+      4: 400086
+    second: Bone025
+  - first:
+      4: 400088
+    second: Bone027
+  - first:
+      4: 400090
+    second: Bone028
+  - first:
+      4: 400092
+    second: Bone030
+  - first:
+      4: 400094
+    second: Bone031
+  - first:
+      4: 400096
+    second: Bone032
+  - first:
+      4: 400098
+    second: Bone033
+  - first:
+      4: 400100
+    second: Bone034
+  - first:
+      4: 400102
+    second: Bone035
+  - first:
+      4: 400104
+    second: Bone036
+  - first:
+      4: 400106
+    second: Bone037
+  - first:
+      4: 400108
+    second: //RootNode
+  - first:
+      4: 400110
+    second: hulu
+  - first:
+      4: 400112
+    second: weapon
+  - first:
+      21: 2100000
+    second: hulu
+  - first:
+      43: 4300000
+    second: hulu
+  - first:
+      74: 7400000
+    second: Take 001
+  - first:
+      95: 9500000
+    second: //RootNode
+  - first:
+      137: 13700000
+    second: hulu
   externalObjects: {}
   materials:
-    importMaterials: 1
+    materialImportMode: 1
     materialName: 0
     materialSearch: 1
     materialLocation: 1
@@ -157,25 +395,28 @@ ModelImporter:
     meshCompression: 0
     addColliders: 0
     useSRGBMaterialColor: 1
+    sortHierarchyByName: 1
     importVisibility: 1
     importBlendShapes: 1
     importCameras: 1
     importLights: 1
+    fileIdsGeneration: 1
     swapUVChannels: 0
     generateSecondaryUV: 0
     useFileUnits: 1
-    optimizeMeshForGPU: 1
     keepQuads: 0
     weldVertices: 1
     preserveHierarchy: 0
+    skinWeightsMode: 0
+    maxBonesPerVertex: 4
+    minBoneWeight: 0.001
+    meshOptimizationFlags: -1
     indexFormat: 0
     secondaryUVAngleDistortion: 8
     secondaryUVAreaDistortion: 15.000001
     secondaryUVHardAngle: 88
     secondaryUVPackMargin: 4
     useFileScale: 1
-    previousCalculatedGlobalScale: 0.01
-    hasPreviousCalculatedGlobalScale: 1
   tangentSpace:
     normalSmoothAngle: 60
     normalImportMode: 0
@@ -184,10 +425,12 @@ ModelImporter:
     legacyComputeAllNormalsFromSmoothingGroupsWhenMeshHasBlendShapes: 0
     blendShapeNormalImportMode: 1
     normalSmoothingSource: 0
+  referencedClips:
+  - 1937e5659235f454bae753be31cd9f4f
+  - 3f9925b224cea5a4e847101e639d45f0
   importAnimation: 1
-  copyAvatar: 0
   humanDescription:
-    serializedVersion: 2
+    serializedVersion: 3
     human: []
     skeleton: []
     armTwist: 0.5
@@ -197,13 +440,16 @@ ModelImporter:
     armStretch: 0.05
     legStretch: 0.05
     feetSpacing: 0
+    globalScale: 1
     rootMotionBoneName: 
     hasTranslationDoF: 0
     hasExtraRoot: 0
     skeletonHasParents: 1
   lastHumanDescriptionAvatarSource: {instanceID: 0}
+  autoGenerateAvatarMappingIfUnspecified: 1
   animationType: 2
   humanoidOversampling: 1
+  avatarSetup: 1
   additionalBone: 0
   userData: 
   assetBundleName: 

@@ -63,7 +63,6 @@ public static class XLuaGenConfig
         typeof(LayerMask),
         typeof(Collider),
         typeof(BoxCollider),
-        typeof(GUILayer),
         typeof(FlareLayer),
         typeof(CanvasRenderer),
         typeof(MeshFilter),

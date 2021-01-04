@@ -58,45 +58,45 @@ public class LuaBridgeDragable3D : LuaBridgeBase
     void Update()
     {
         CallLuaBindFunc(UnityBehaviourFunc.Update, Time.deltaTime);
-//#if UNITY_STANDALONE || UNITY_EDITOR
+#if UNITY_STANDALONE || UNITY_EDITOR
 
-//        if (Input.GetMouseButtonDown(0))
-//        {
-//            if(EventSystem.current.IsPointerOverGameObject() == false)
-//            OnBeginDrag();
-//        }
-//        else if(Input.GetMouseButtonUp(0) && isDraging)
-//        {
-//            OnEndDrag();
-//        }
-//        else if(Input.GetMouseButton(0) && isDraging)
-//        {
-//            OnDrag();
-//        }
-//#else
+        if (Input.GetMouseButtonDown(0))
+        {
+            if(EventSystem.current.IsPointerOverGameObject() == false)
+            OnBeginDrag();
+        }
+        else if(Input.GetMouseButtonUp(0) && isDraging)
+        {
+            OnEndDrag();
+        }
+        else if(Input.GetMouseButton(0) && isDraging)
+        {
+            OnDrag();
+        }
+#else
 
-//        int count = Input.touchCount;
-//        if(count > 0 )
-//        {
-//            if(touchCount == 0)
-//            {
-//                if(EventSystem.current.IsPointerOverGameObject(Input.GetTouch(0).fingerId) == false)
-//                    OnBeginDrag();
-//            }
-//            else
-//            {
-//                if(isDraging)
-//                OnDrag();
-//            }
-//        }
-//        else
-//        {
-//            if (touchCount > 0 && isDraging)
-//            {
-//                OnEndDrag();
-//            }
-//        }
-//#endif
+        int count = Input.touchCount;
+        if(count > 0 )
+        {
+            if(touchCount == 0)
+            {
+                if(EventSystem.current.IsPointerOverGameObject(Input.GetTouch(0).fingerId) == false)
+                    OnBeginDrag();
+            }
+            else
+            {
+                if(isDraging)
+                OnDrag();
+            }
+        }
+        else
+        {
+            if (touchCount > 0 && isDraging)
+            {
+                OnEndDrag();
+            }
+        }
+#endif
 
         //        if (isDraging)
         //        {
