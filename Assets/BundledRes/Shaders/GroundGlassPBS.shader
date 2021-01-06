@@ -165,7 +165,7 @@
 				float3 Diffuse = Diffuse_Lambert(BaseColor - BaseColor * Metallic) *NoL;
 
 				float lightIns = /*AO * */_LightInstense;
-				col.rgb = (Specular/* + Diffuse*/)* lightIns;
+				col.rgb = (Specular + Diffuse)* lightIns;
 				//col.rgb = (/*Specular + */Diffuse)* lightIns;
 				//col.rgb = (Specular + Diffuse) * lightIns;
 				//col.rgb = NoL;

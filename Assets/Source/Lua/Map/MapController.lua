@@ -27,6 +27,7 @@ function MapController:bind_behaviour_funcs()
 end
 
 function MapController:Update()
+
     if (U.Input.GetMouseButtonDown(0)) then
         if(U.EventSystem.current:IsPointerOverGameObject() == false) then
             self:OnBeginDrag();
@@ -35,6 +36,11 @@ function MapController:Update()
         self:OnEndDrag();      
     elseif(U.Input.GetMouseButton(0) and self.isDraging) then   
         self:OnDrag();
+    else
+        local scrollValue = U.Input.GetAxis("Mouse ScrollWheel");
+        if scrollValue ~= 0 then
+            self.camera.transform.position = self.camera.transform.position + self.camera_forward * scrollValue * 10
+        end
     end
 end
 

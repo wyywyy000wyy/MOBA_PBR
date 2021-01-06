@@ -54,6 +54,7 @@ MeshRenderer:
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -65,6 +66,7 @@ MeshRenderer:
   m_ProbeAnchor: {fileID: 0}
   m_LightProbeVolumeOverride: {fileID: 0}
   m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
   m_PreserveUVs: 0
   m_IgnoreNormalsForChartDetection: 0
   m_ImportantGI: 0
@@ -102,7 +104,7 @@ Transform:
   m_GameObject: {fileID: 8015455535071992596}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 312.20706, y: 0, z: 314.54913}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 4, y: 4, z: 4}
   m_Children:
   - {fileID: 4583125010867268398}
   - {fileID: 7538490990332170436}
@@ -116,11 +118,6 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 8015455535071992597}
     m_Modifications:
-    - target: {fileID: 7410319432312069814, guid: 016f732a186e8dc4480b580c22a4ea3f,
-        type: 3}
-      propertyPath: m_Name
-      value: gebulin01
-      objectReference: {fileID: 0}
     - target: {fileID: 455516124488988063, guid: 016f732a186e8dc4480b580c22a4ea3f,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -190,6 +187,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalScale.z
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7410319432312069814, guid: 016f732a186e8dc4480b580c22a4ea3f,
+        type: 3}
+      propertyPath: m_Name
+      value: gebulin01
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 016f732a186e8dc4480b580c22a4ea3f, type: 3}

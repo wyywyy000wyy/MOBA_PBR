@@ -15,8 +15,8 @@ public class Map : MonoBehaviour
     public static readonly int MAP_TILE_COUNT_Y = 8;
     public static readonly int MAP_BLOCK_COUNT_X = 8;
     public static readonly int MAP_BLOCK_COUNT_Y = 8;
-    public static readonly int MAP_CELL_COUNT_X = 10;
-    public static readonly int MAP_CELL_COUNT_Y = 10;
+    public static readonly int MAP_CELL_COUNT_X = 20;
+    public static readonly int MAP_CELL_COUNT_Y = 20;
 
     public static readonly int MAP_BLOCK_COUNT_TOTAL_X = MAP_BLOCK_COUNT_X * MAP_TILE_COUNT_X;
     public static readonly int MAP_BLOCK_COUNT_TOTAL_Y = MAP_BLOCK_COUNT_Y * MAP_TILE_COUNT_Y;
@@ -65,8 +65,8 @@ public class Map : MonoBehaviour
     public GameObject mapLevel1;
     public GameObject mapLevel2;
 
-    public float scaleValue0 = 10;
-    public float scaleValue1 = 20;
+    public float scaleValue0 = 20;
+    public float scaleValue1 = 40;
 
     Vector3 targetPos;
     Vector3 tpos = new Vector3(0,0,0);
@@ -99,9 +99,9 @@ public class Map : MonoBehaviour
 
     static readonly int MAX_BLOCK = 10 * 10;
 
-    int[]  viewX =  { 1, 4 ,8};
-    int[] viewY = { 1, 4 , 8};
-    int[] viewY2 = { 1, 1, 2 };
+    int[]  viewX =  { 2, 4 ,8};
+    int[] viewY = { 2, 4 , 8};
+    int[] viewY2 = { 2, 2, 2 };
     int curBlock = -1;
     int showBlocks = 0;
     int curLevel = 1;

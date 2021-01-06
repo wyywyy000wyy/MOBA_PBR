@@ -52,6 +52,9 @@ public static class MapResourceCenter
             {
                 return;
             }
+
+            g.transform.localScale = new Vector3((float)Map.MAP_CELL_DEMANSION_X, (float)Map.MAP_CELL_DEMANSION_Y, (float)Map.MAP_CELL_DEMANSION_X);
+
             MapResourceCache cache = new MapResourceCache(g);
             Debug.LogFormat("PreLoad {0}", resourceId);
             caches[resourceId] = cache;
