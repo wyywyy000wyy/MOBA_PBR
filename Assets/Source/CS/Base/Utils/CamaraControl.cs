@@ -27,7 +27,7 @@ public class CamaraControl : MonoBehaviour
 
     void Update()
     {
-        if(Input.GetMouseButtonDown(1))
+        if (Input.GetMouseButtonDown(1))
         {
             pressId = 2;
             pressPos = Input.mousePosition;
