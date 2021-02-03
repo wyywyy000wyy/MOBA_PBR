@@ -13,7 +13,7 @@ public class WarNet : MonoBehaviour, ISington
     }
 
     public Action<NetEventType> onNetEvent;
-    public Action<Packet> onReceivePacketEvent;
+    public Action<Msg> onReceivePacketEvent;
 
     ConnectionProxy cp;
     ArrayList eventQueue;
@@ -58,7 +58,7 @@ public class WarNet : MonoBehaviour, ISington
                 eventQueue.Add(NetEventType.CONNECT);
         };
 
-        cp.onReceiveEvent += (Packet p) =>
+        cp.onReceiveEvent += (Msg p) =>
         {
             {
                 packetQueue.Add(p);
@@ -67,7 +67,7 @@ public class WarNet : MonoBehaviour, ISington
         cp.Connect(host[index], port);
     }
 
-    public void Send(Packet p)
+    public void Send(Msg p)
     {
         if (cp != null)
             cp.Send(p);
@@ -85,7 +85,7 @@ public class WarNet : MonoBehaviour, ISington
         }
         for (int i = 0; i < 3 && packetQueue.Count > 0; i++)
         {
-            Packet p = (Packet)packetQueue[0];
+            Msg p = (Msg)packetQueue[0];
             packetQueue.RemoveAt(0);
             if (onReceivePacketEvent != null)
                 onReceivePacketEvent(p);

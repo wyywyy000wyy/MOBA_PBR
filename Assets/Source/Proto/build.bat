@@ -1,2 +1,2 @@
-protoc.exe *.proto --csharp_out=../CS/Protocol
+protoc.exe NetProtocol.proto --csharp_out=../CS/Protocol
 pause

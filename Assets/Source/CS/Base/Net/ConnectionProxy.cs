@@ -6,10 +6,11 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using UnityEngine;
+using pb = global::Google.Protobuf;
 
 public class ConnectionProxy
 {
-    public Action<Packet> onReceiveEvent;
+    public Action<Msg> onReceiveEvent;
     public Action onConnectEvent;
     public Action onConnectErrorEvent;
     public Action onCloseEvent;
@@ -78,7 +79,7 @@ public class ConnectionProxy
         }
     }
 
-    public void Send(Packet p)
+    public void Send(Msg p)
     {
         if (sendQueue != null)
         {
@@ -278,8 +279,11 @@ public class ConnectionProxy
                 decodeFunc(buffer, len);
 
             // 解密
-           Packet packet = new Packet();
-            packet.Set(len, buffer, 0);
+            pb::CodedInputStream input = new pb.CodedInputStream(buffer);
+            Msg packet = new Msg();
+            //packet.Set(len, buffer, 0);
+            packet.MergeFrom(input);
+
 
             if (onReceiveEvent != null)
                 onReceiveEvent(packet);
@@ -296,17 +300,16 @@ public class ConnectionProxy
 #endif
             while (sendQueue.Count > 0)
             {
-                Packet packet = (Packet)sendQueue[0];
-                packet.EncodeHeader();
+                Msg packet = (Msg)sendQueue[0];
                 // Debug.Log(packet);
                 //  packet.Finish();
                 sendQueue.RemoveAt(0);
                 try
                 {
-                    if (encodeFunc != null)
-                        encodeFunc(packet.GetBytes(), packet.Size);
+                    //if (encodeFunc != null)
+                    //    encodeFunc(packet.GetBytes(), packet.Size);
                     //encode;
-                    stream.Write(packet.GetBytes(), 0, packet.Size);
+                    stream.Write(packet.Data.ToByteArray(), 0, packet.Data.Length);
                 }
                 catch (Exception e)
                 {
