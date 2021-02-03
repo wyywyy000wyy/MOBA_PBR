@@ -36,57 +36,31 @@
 
 #include <string>
 
-#include <google/protobuf/port_def.inc>
-
 namespace google {
 namespace protobuf {
 namespace compiler {
 namespace php {
 
-struct Options;
-
-class PROTOC_EXPORT Generator : public CodeGenerator {
- public:
+class LIBPROTOC_EXPORT Generator
+    : public google::protobuf::compiler::CodeGenerator {
   virtual bool Generate(
       const FileDescriptor* file,
-      const std::string& parameter,
+      const string& parameter,
       GeneratorContext* generator_context,
-      std::string* error) const override;
+      string* error) const;
 
-  bool GenerateAll(const std::vector<const FileDescriptor*>& files,
-                   const std::string& parameter,
-                   GeneratorContext* generator_context,
-                   std::string* error) const override;
-
-  uint64_t GetSupportedFeatures() const override {
-    return FEATURE_PROTO3_OPTIONAL;
-  }
-
- private:
-  bool Generate(
-      const FileDescriptor* file,
-      const Options& options,
-      GeneratorContext* generator_context,
-      std::string* error) const;
 };
 
 // To skip reserved keywords in php, some generated classname are prefixed.
 // Other code generators may need following API to figure out the actual
 // classname.
-PROTOC_EXPORT std::string GeneratedClassName(const Descriptor* desc);
-PROTOC_EXPORT std::string GeneratedClassName(const EnumDescriptor* desc);
-PROTOC_EXPORT std::string GeneratedClassName(const ServiceDescriptor* desc);
-
-inline bool IsWrapperType(const FieldDescriptor* descriptor) {
-  return descriptor->cpp_type() == FieldDescriptor::CPPTYPE_MESSAGE &&
-      descriptor->message_type()->file()->name() == "google/protobuf/wrappers.proto";
-}
+std::string GeneratedClassName(const google::protobuf::Descriptor* desc);
+std::string GeneratedClassName(const google::protobuf::EnumDescriptor* desc);
+std::string GeneratedClassName(const google::protobuf::ServiceDescriptor* desc);
 
 }  // namespace php
 }  // namespace compiler
 }  // namespace protobuf
 }  // namespace google
-
-#include <google/protobuf/port_undef.inc>
 
 #endif  // GOOGLE_PROTOBUF_COMPILER_PHP_GENERATOR_H__

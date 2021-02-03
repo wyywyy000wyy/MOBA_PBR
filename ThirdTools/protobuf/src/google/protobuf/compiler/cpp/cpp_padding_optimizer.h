@@ -50,15 +50,15 @@ namespace cpp {
 class PaddingOptimizer : public MessageLayoutHelper {
  public:
   PaddingOptimizer() {}
-  ~PaddingOptimizer() override {}
+  ~PaddingOptimizer() {}
 
   void OptimizeLayout(std::vector<const FieldDescriptor*>* fields,
-                      const Options& options) override;
+                      const Options& options);
 };
 
 }  // namespace cpp
 }  // namespace compiler
 }  // namespace protobuf
-}  // namespace google
 
+}  // namespace google
 #endif  // GOOGLE_PROTOBUF_COMPILER_CPP_PADDING_OPTIMIZER_H__

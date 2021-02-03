@@ -30,6 +30,7 @@
 
 #include <google/protobuf/arena_test_util.h>
 #include <google/protobuf/map_lite_test_util.h>
+#include <google/protobuf/testing/googletest.h>
 #include <gtest/gtest.h>
 
 namespace google {
@@ -45,38 +46,38 @@ class LiteArenaTest : public testing::Test {
     arena_.reset(new Arena(options));
     // Trigger the allocation of the first arena block, so that further use of
     // the arena will not require any heap allocations.
-    Arena::CreateArray<char>(arena_.get(), 1);
+    google::protobuf::Arena::CreateArray<char>(arena_.get(), 1);
   }
 
-  std::unique_ptr<Arena> arena_;
+  google::protobuf::scoped_ptr<Arena> arena_;
 };
 
 TEST_F(LiteArenaTest, MapNoHeapAllocation) {
-  std::string data;
+  string data;
   data.reserve(128 * 1024);
 
   {
     // TODO(teboring): Enable no heap check when ArenaStringPtr is used in
     // Map.
-    // internal::NoHeapChecker no_heap;
+    // google::protobuf::internal::NoHeapChecker no_heap;
 
     protobuf_unittest::TestArenaMapLite* from =
         Arena::CreateMessage<protobuf_unittest::TestArenaMapLite>(arena_.get());
-    MapLiteTestUtil::SetArenaMapFields(from);
+    google::protobuf::MapLiteTestUtil::SetArenaMapFields(from);
     from->SerializeToString(&data);
 
     protobuf_unittest::TestArenaMapLite* to =
         Arena::CreateMessage<protobuf_unittest::TestArenaMapLite>(arena_.get());
     to->ParseFromString(data);
-    MapLiteTestUtil::ExpectArenaMapFieldsSet(*to);
+    google::protobuf::MapLiteTestUtil::ExpectArenaMapFieldsSet(*to);
   }
 }
 
 TEST_F(LiteArenaTest, UnknownFieldMemLeak) {
   protobuf_unittest::ForeignMessageArenaLite* message =
-      Arena::CreateMessage<protobuf_unittest::ForeignMessageArenaLite>(
+      google::protobuf::Arena::CreateMessage<protobuf_unittest::ForeignMessageArenaLite>(
           arena_.get());
-  std::string data = "\012\000";
+  string data = "\012\000";
   int original_capacity = data.capacity();
   while (data.capacity() <= original_capacity) {
     data.append("a");

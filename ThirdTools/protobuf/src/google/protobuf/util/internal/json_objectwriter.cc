@@ -30,8 +30,7 @@
 
 #include <google/protobuf/util/internal/json_objectwriter.h>
 
-#include <cmath>
-#include <limits>
+#include <math.h>
 
 #include <google/protobuf/stubs/casts.h>
 #include <google/protobuf/stubs/logging.h>
@@ -39,15 +38,18 @@
 #include <google/protobuf/util/internal/utility.h>
 #include <google/protobuf/util/internal/json_escaping.h>
 #include <google/protobuf/stubs/strutil.h>
+#include <google/protobuf/stubs/mathlimits.h>
 
 namespace google {
 namespace protobuf {
 namespace util {
 namespace converter {
 
+using strings::ArrayByteSource;
+;
 
 JsonObjectWriter::~JsonObjectWriter() {
-  if (element_ && !element_->is_root()) {
+  if (!element_->is_root()) {
     GOOGLE_LOG(WARNING) << "JsonObjectWriter was not fully closed.";
   }
 }
@@ -55,21 +57,21 @@ JsonObjectWriter::~JsonObjectWriter() {
 JsonObjectWriter* JsonObjectWriter::StartObject(StringPiece name) {
   WritePrefix(name);
   WriteChar('{');
-  PushObject();
+  Push();
   return this;
 }
 
 JsonObjectWriter* JsonObjectWriter::EndObject() {
   Pop();
   WriteChar('}');
-  if (element() && element()->is_root()) NewLine();
+  if (element()->is_root()) NewLine();
   return this;
 }
 
 JsonObjectWriter* JsonObjectWriter::StartList(StringPiece name) {
   WritePrefix(name);
   WriteChar('[');
-  PushArray();
+  Push();
   return this;
 }
 
@@ -80,26 +82,23 @@ JsonObjectWriter* JsonObjectWriter::EndList() {
   return this;
 }
 
-JsonObjectWriter* JsonObjectWriter::RenderBool(StringPiece name,
-                                               bool value) {
+JsonObjectWriter* JsonObjectWriter::RenderBool(StringPiece name, bool value) {
   return RenderSimple(name, value ? "true" : "false");
 }
 
-JsonObjectWriter* JsonObjectWriter::RenderInt32(StringPiece name,
-                                                int32 value) {
-  return RenderSimple(name, StrCat(value));
+JsonObjectWriter* JsonObjectWriter::RenderInt32(StringPiece name, int32 value) {
+  return RenderSimple(name, SimpleItoa(value));
 }
 
 JsonObjectWriter* JsonObjectWriter::RenderUint32(StringPiece name,
                                                  uint32 value) {
-  return RenderSimple(name, StrCat(value));
+  return RenderSimple(name, SimpleItoa(value));
 }
 
-JsonObjectWriter* JsonObjectWriter::RenderInt64(StringPiece name,
-                                                int64 value) {
+JsonObjectWriter* JsonObjectWriter::RenderInt64(StringPiece name, int64 value) {
   WritePrefix(name);
   WriteChar('"');
-  WriteRawString(StrCat(value));
+  stream_->WriteString(SimpleItoa(value));
   WriteChar('"');
   return this;
 }
@@ -108,14 +107,14 @@ JsonObjectWriter* JsonObjectWriter::RenderUint64(StringPiece name,
                                                  uint64 value) {
   WritePrefix(name);
   WriteChar('"');
-  WriteRawString(StrCat(value));
+  stream_->WriteString(SimpleItoa(value));
   WriteChar('"');
   return this;
 }
 
 JsonObjectWriter* JsonObjectWriter::RenderDouble(StringPiece name,
                                                  double value) {
-  if (std::isfinite(value)) {
+  if (MathLimits<double>::IsFinite(value)) {
     return RenderSimple(name, SimpleDtoa(value));
   }
 
@@ -123,9 +122,8 @@ JsonObjectWriter* JsonObjectWriter::RenderDouble(StringPiece name,
   return RenderString(name, DoubleAsString(value));
 }
 
-JsonObjectWriter* JsonObjectWriter::RenderFloat(StringPiece name,
-                                                float value) {
-  if (std::isfinite(value)) {
+JsonObjectWriter* JsonObjectWriter::RenderFloat(StringPiece name, float value) {
+  if (MathLimits<float>::IsFinite(value)) {
     return RenderSimple(name, SimpleFtoa(value));
   }
 
@@ -137,7 +135,8 @@ JsonObjectWriter* JsonObjectWriter::RenderString(StringPiece name,
                                                  StringPiece value) {
   WritePrefix(name);
   WriteChar('"');
-  JsonEscaping::Escape(value, &sink_);
+  ArrayByteSource source(value);
+  JsonEscaping::Escape(&source, &sink_);
   WriteChar('"');
   return this;
 }
@@ -145,10 +144,10 @@ JsonObjectWriter* JsonObjectWriter::RenderString(StringPiece name,
 JsonObjectWriter* JsonObjectWriter::RenderBytes(StringPiece name,
                                                 StringPiece value) {
   WritePrefix(name);
-  std::string base64;
+  string base64;
 
   if (use_websafe_base64_for_bytes_)
-    WebSafeBase64EscapeWithPadding(std::string(value), &base64);
+    WebSafeBase64EscapeWithPadding(value.ToString(), &base64);
   else
     Base64Escape(value, &base64);
 
@@ -173,14 +172,22 @@ void JsonObjectWriter::WritePrefix(StringPiece name) {
   bool not_first = !element()->is_first();
   if (not_first) WriteChar(',');
   if (not_first || !element()->is_root()) NewLine();
-  if (!name.empty() || element()->is_json_object()) {
+  bool empty_key_ok = GetAndResetEmptyKeyOk();
+  if (!name.empty() || empty_key_ok) {
     WriteChar('"');
     if (!name.empty()) {
-      JsonEscaping::Escape(name, &sink_);
+      ArrayByteSource source(name);
+      JsonEscaping::Escape(&source, &sink_);
     }
-    WriteRawString("\":");
+    stream_->WriteString("\":");
     if (!indent_string_.empty()) WriteChar(' ');
   }
+}
+
+bool JsonObjectWriter::GetAndResetEmptyKeyOk() {
+  bool retval = empty_name_ok_for_next_key_;
+  empty_name_ok_for_next_key_ = false;
+  return retval;
 }
 
 }  // namespace converter

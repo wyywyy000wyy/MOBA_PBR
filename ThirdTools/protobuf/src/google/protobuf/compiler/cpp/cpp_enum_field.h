@@ -58,9 +58,14 @@ class EnumFieldGenerator : public FieldGenerator {
   void GenerateSwappingCode(io::Printer* printer) const;
   void GenerateConstructorCode(io::Printer* printer) const;
   void GenerateCopyConstructorCode(io::Printer* printer) const;
+  void GenerateMergeFromCodedStream(io::Printer* printer) const;
+  void GenerateSerializeWithCachedSizes(io::Printer* printer) const;
   void GenerateSerializeWithCachedSizesToArray(io::Printer* printer) const;
   void GenerateByteSize(io::Printer* printer) const;
-  void GenerateConstinitInitializer(io::Printer* printer) const;
+
+ protected:
+  const FieldDescriptor* descriptor_;
+  std::map<string, string> variables_;
 
  private:
   GOOGLE_DISALLOW_EVIL_CONSTRUCTORS(EnumFieldGenerator);
@@ -99,17 +104,20 @@ class RepeatedEnumFieldGenerator : public FieldGenerator {
   void GenerateCopyConstructorCode(io::Printer* printer) const {}
   void GenerateMergeFromCodedStream(io::Printer* printer) const;
   void GenerateMergeFromCodedStreamWithPacking(io::Printer* printer) const;
+  void GenerateSerializeWithCachedSizes(io::Printer* printer) const;
   void GenerateSerializeWithCachedSizesToArray(io::Printer* printer) const;
   void GenerateByteSize(io::Printer* printer) const;
-  void GenerateConstinitInitializer(io::Printer* printer) const;
 
  private:
+  const FieldDescriptor* descriptor_;
+  std::map<string, string> variables_;
+
   GOOGLE_DISALLOW_EVIL_CONSTRUCTORS(RepeatedEnumFieldGenerator);
 };
 
 }  // namespace cpp
 }  // namespace compiler
 }  // namespace protobuf
-}  // namespace google
 
+}  // namespace google
 #endif  // GOOGLE_PROTOBUF_COMPILER_CPP_ENUM_FIELD_H__

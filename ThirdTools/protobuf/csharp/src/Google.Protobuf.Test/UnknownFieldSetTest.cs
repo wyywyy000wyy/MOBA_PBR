@@ -31,27 +31,13 @@
 #endregion
 
 using System;
-using System.IO;
 using Google.Protobuf.TestProtos;
-using Proto2 = Google.Protobuf.TestProtos.Proto2;
 using NUnit.Framework;
 
 namespace Google.Protobuf
 {
     public class UnknownFieldSetTest
     {
-        public class Data
-        {
-            public static System.Collections.IEnumerable Messages
-            {
-                get
-                {
-                    yield return SampleMessages.CreateFullTestAllTypesProto2();
-                    yield return SampleMessages.CreateFullTestAllTypes();
-                }
-            }
-        }
-
         [Test]
         public void EmptyUnknownFieldSet()
         {
@@ -73,23 +59,24 @@ namespace Google.Protobuf
         }
 
         [Test]
-        [TestCaseSource(typeof(Data), "Messages")]
-        public void TestMergeCodedInput(IMessage message)
+        public void TestMergeCodedInput()
         {
+            var message = SampleMessages.CreateFullTestAllTypes();
             var emptyMessage = new TestEmptyMessage();
             emptyMessage.MergeFrom(message.ToByteArray());
             Assert.AreEqual(message.CalculateSize(), emptyMessage.CalculateSize());
             Assert.AreEqual(message.ToByteArray(), emptyMessage.ToByteArray());
 
-            var newMessage = message.Descriptor.Parser.ParseFrom(emptyMessage.ToByteArray());
+            var newMessage = new TestAllTypes();
+            newMessage.MergeFrom(emptyMessage.ToByteArray());
             Assert.AreEqual(message, newMessage);
             Assert.AreEqual(message.CalculateSize(), newMessage.CalculateSize());
         }
 
         [Test]
-        [TestCaseSource(typeof(Data), "Messages")]
-        public void TestMergeMessage(IMessage message)
+        public void TestMergeMessage()
         {
+            var message = SampleMessages.CreateFullTestAllTypes();
             var emptyMessage = new TestEmptyMessage();
             var otherEmptyMessage = new TestEmptyMessage();
             emptyMessage.MergeFrom(message.ToByteArray());
@@ -100,9 +87,9 @@ namespace Google.Protobuf
         }
 
         [Test]
-        [TestCaseSource(typeof(Data), "Messages")]
-        public void TestEquals(IMessage message)
+        public void TestEquals()
         {
+            var message = SampleMessages.CreateFullTestAllTypes();
             var emptyMessage = new TestEmptyMessage();
             var otherEmptyMessage = new TestEmptyMessage();
             Assert.AreEqual(emptyMessage, otherEmptyMessage);
@@ -113,9 +100,9 @@ namespace Google.Protobuf
         }
 
         [Test]
-        [TestCaseSource(typeof(Data), "Messages")]
-        public void TestHashCode(IMessage message)
+        public void TestHashCode()
         {
+            var message = SampleMessages.CreateFullTestAllTypes();
             var emptyMessage = new TestEmptyMessage();
             int hashCode = emptyMessage.GetHashCode();
             emptyMessage.MergeFrom(message.ToByteArray());
@@ -123,8 +110,7 @@ namespace Google.Protobuf
         }
 
         [Test]
-        [TestCaseSource(typeof(Data), "Messages")]
-        public void TestClone(IMessage message)
+        public void TestClone()
         {
             var emptyMessage = new TestEmptyMessage();
             var otherEmptyMessage = new TestEmptyMessage();
@@ -132,75 +118,11 @@ namespace Google.Protobuf
             Assert.AreEqual(emptyMessage.CalculateSize(), otherEmptyMessage.CalculateSize());
             Assert.AreEqual(emptyMessage.ToByteArray(), otherEmptyMessage.ToByteArray());
 
+            var message = SampleMessages.CreateFullTestAllTypes();
             emptyMessage.MergeFrom(message.ToByteArray());
             otherEmptyMessage = emptyMessage.Clone();
             Assert.AreEqual(message.CalculateSize(), otherEmptyMessage.CalculateSize());
             Assert.AreEqual(message.ToByteArray(), otherEmptyMessage.ToByteArray());
-        }
-
-        [Test]
-        [TestCaseSource(typeof(Data), "Messages")]
-        public void TestDiscardUnknownFields(IMessage message)
-        {
-            var goldenEmptyMessage = new TestEmptyMessage();
-            byte[] data = message.ToByteArray();
-            int fullSize = message.CalculateSize();
-
-            Action<IMessage> assertEmpty = msg =>
-            {
-                Assert.AreEqual(0, msg.CalculateSize());
-                Assert.AreEqual(goldenEmptyMessage, msg);
-            };
-
-            Action<IMessage> assertFull = msg => Assert.AreEqual(fullSize, msg.CalculateSize());
-
-            // Test the behavior of the parsers with and without discarding, both generic and non-generic.
-            MessageParser<TestEmptyMessage> retainingParser1 = TestEmptyMessage.Parser;
-            MessageParser retainingParser2 = retainingParser1;
-            MessageParser<TestEmptyMessage> discardingParser1 = retainingParser1.WithDiscardUnknownFields(true);
-            MessageParser discardingParser2 = retainingParser2.WithDiscardUnknownFields(true);
-
-            // Test parse from byte[]
-            MessageParsingHelpers.AssertReadingMessage(retainingParser1, data, m => assertFull(m));
-            MessageParsingHelpers.AssertReadingMessage(retainingParser2, data, m => assertFull(m));
-            MessageParsingHelpers.AssertReadingMessage(discardingParser1, data, m => assertEmpty(m));
-            MessageParsingHelpers.AssertReadingMessage(discardingParser2, data, m => assertEmpty(m));
-
-            // Test parse from byte[] with offset
-            assertFull(retainingParser1.ParseFrom(data, 0, data.Length));
-            assertFull(retainingParser2.ParseFrom(data, 0, data.Length));
-            assertEmpty(discardingParser1.ParseFrom(data, 0, data.Length));
-            assertEmpty(discardingParser2.ParseFrom(data, 0, data.Length));
-
-            // Test parse from CodedInputStream
-            assertFull(retainingParser1.ParseFrom(new CodedInputStream(data)));
-            assertFull(retainingParser2.ParseFrom(new CodedInputStream(data)));
-            assertEmpty(discardingParser1.ParseFrom(new CodedInputStream(data)));
-            assertEmpty(discardingParser2.ParseFrom(new CodedInputStream(data)));
-
-            // Test parse from Stream
-            assertFull(retainingParser1.ParseFrom(new MemoryStream(data)));
-            assertFull(retainingParser2.ParseFrom(new MemoryStream(data)));
-            assertEmpty(discardingParser1.ParseFrom(new MemoryStream(data)));
-            assertEmpty(discardingParser2.ParseFrom(new MemoryStream(data)));
-        }
-
-        [Test]
-        public void TestReadInvalidWireTypeThrowsInvalidProtocolBufferException()
-        {
-            MemoryStream ms = new MemoryStream();
-            CodedOutputStream output = new CodedOutputStream(ms);
-
-            uint tag = WireFormat.MakeTag(1, (WireFormat.WireType)6);
-            output.WriteRawVarint32(tag);
-            output.WriteLength(-1);
-            output.Flush();
-            ms.Position = 0;
-
-            CodedInputStream input = new CodedInputStream(ms);
-            Assert.AreEqual(tag, input.ReadTag());
-
-            Assert.Throws<InvalidProtocolBufferException>(() => UnknownFieldSet.MergeFieldFrom(null, input));
         }
     }
 }

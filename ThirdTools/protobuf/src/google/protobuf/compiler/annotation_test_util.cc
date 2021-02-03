@@ -31,15 +31,18 @@
 #include <google/protobuf/compiler/annotation_test_util.h>
 
 #include <memory>
-
-#include <google/protobuf/testing/file.h>
-#include <google/protobuf/testing/file.h>
+#ifndef _SHARED_PTR_H
+#include <google/protobuf/stubs/shared_ptr.h>
+#endif
 #include <google/protobuf/compiler/code_generator.h>
 #include <google/protobuf/compiler/command_line_interface.h>
 #include <google/protobuf/io/printer.h>
 #include <google/protobuf/io/zero_copy_stream.h>
 #include <google/protobuf/io/zero_copy_stream_impl_lite.h>
 #include <google/protobuf/descriptor.pb.h>
+
+#include <google/protobuf/testing/file.h>
+#include <google/protobuf/testing/file.h>
 #include <google/protobuf/testing/googletest.h>
 #include <gtest/gtest.h>
 
@@ -57,9 +60,8 @@ class DescriptorCapturingGenerator : public CodeGenerator {
   explicit DescriptorCapturingGenerator(FileDescriptorProto* file)
       : file_(file) {}
 
-  virtual bool Generate(const FileDescriptor* file,
-                        const std::string& parameter, GeneratorContext* context,
-                        std::string* error) const {
+  virtual bool Generate(const FileDescriptor* file, const string& parameter,
+                        GeneratorContext* context, string* error) const {
     file->CopyTo(file_);
     return true;
   }
@@ -69,38 +71,56 @@ class DescriptorCapturingGenerator : public CodeGenerator {
 };
 }  // namespace
 
-void AddFile(const std::string& filename, const std::string& data) {
+void AddFile(const string& filename, const string& data) {
   GOOGLE_CHECK_OK(File::SetContents(TestTempDir() + "/" + filename, data,
                              true));
 }
 
-bool RunProtoCompiler(const std::string& filename,
-                      const std::string& plugin_specific_args,
-                      CommandLineInterface* cli, FileDescriptorProto* file) {
+bool CaptureMetadata(const string& filename, const string& plugin_specific_args,
+                     const string& meta_file_suffix, CommandLineInterface* cli,
+                     FileDescriptorProto* file,
+                     std::vector<ExpectedOutput>* outputs) {
   cli->SetInputsAreProtoPathRelative(true);
 
   DescriptorCapturingGenerator capturing_generator(file);
   cli->RegisterGenerator("--capture_out", &capturing_generator, "");
 
-  std::string proto_path = "-I" + TestTempDir();
-  std::string capture_out = "--capture_out=" + TestTempDir();
+  string proto_path = "-I" + TestTempDir();
+  string capture_out = "--capture_out=" + TestTempDir();
 
   const char* argv[] = {"protoc", proto_path.c_str(),
                         plugin_specific_args.c_str(), capture_out.c_str(),
                         filename.c_str()};
 
-  return cli->Run(5, argv) == 0;
+  if (cli->Run(5, argv) != 0) {
+    return false;
+  }
+
+  if (outputs != NULL) {
+    for (std::vector<ExpectedOutput>::iterator i = outputs->begin();
+         i != outputs->end(); ++i) {
+      GOOGLE_CHECK_OK(File::GetContents(TestTempDir() + "/" + i->file_path,
+                                 &i->file_content, true));
+      if (!DecodeMetadata(
+              TestTempDir() + "/" + i->file_path + meta_file_suffix,
+              &i->file_info)) {
+        return false;
+      }
+    }
+  }
+
+  return true;
 }
 
-bool DecodeMetadata(const std::string& path, GeneratedCodeInfo* info) {
-  std::string data;
+bool DecodeMetadata(const string& path, GeneratedCodeInfo* info) {
+  string data;
   GOOGLE_CHECK_OK(File::GetContents(path, &data, true));
   io::ArrayInputStream input(data.data(), data.size());
   return info->ParseFromZeroCopyStream(&input);
 }
 
 void FindAnnotationsOnPath(
-    const GeneratedCodeInfo& info, const std::string& source_file,
+    const GeneratedCodeInfo& info, const string& source_file,
     const std::vector<int>& path,
     std::vector<const GeneratedCodeInfo::Annotation*>* annotations) {
   for (int i = 0; i < info.annotation_size(); ++i) {
@@ -122,7 +142,7 @@ void FindAnnotationsOnPath(
 }
 
 const GeneratedCodeInfo::Annotation* FindAnnotationOnPath(
-    const GeneratedCodeInfo& info, const std::string& source_file,
+    const GeneratedCodeInfo& info, const string& source_file,
     const std::vector<int>& path) {
   std::vector<const GeneratedCodeInfo::Annotation*> annotations;
   FindAnnotationsOnPath(info, source_file, path, &annotations);
@@ -133,9 +153,9 @@ const GeneratedCodeInfo::Annotation* FindAnnotationOnPath(
 }
 
 bool AtLeastOneAnnotationMatchesSubstring(
-    const std::string& file_content,
+    const string& file_content,
     const std::vector<const GeneratedCodeInfo::Annotation*>& annotations,
-    const std::string& expected_text) {
+    const string& expected_text) {
   for (std::vector<const GeneratedCodeInfo::Annotation*>::const_iterator
            i = annotations.begin(),
            e = annotations.end();
@@ -153,9 +173,9 @@ bool AtLeastOneAnnotationMatchesSubstring(
   return false;
 }
 
-bool AnnotationMatchesSubstring(const std::string& file_content,
+bool AnnotationMatchesSubstring(const string& file_content,
                                 const GeneratedCodeInfo::Annotation* annotation,
-                                const std::string& expected_text) {
+                                const string& expected_text) {
   std::vector<const GeneratedCodeInfo::Annotation*> annotations;
   annotations.push_back(annotation);
   return AtLeastOneAnnotationMatchesSubstring(file_content, annotations,

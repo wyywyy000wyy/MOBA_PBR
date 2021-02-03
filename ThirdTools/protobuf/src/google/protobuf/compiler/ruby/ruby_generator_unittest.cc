@@ -29,7 +29,6 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <memory>
-#include <list>
 
 #include <google/protobuf/compiler/ruby/ruby_generator.h>
 #include <google/protobuf/compiler/command_line_interface.h>
@@ -46,7 +45,7 @@ namespace compiler {
 namespace ruby {
 namespace {
 
-std::string FindRubyTestDir() {
+string FindRubyTestDir() {
   return TestSourceDir() + "/google/protobuf/compiler/ruby";
 }
 
@@ -57,8 +56,8 @@ std::string FindRubyTestDir() {
 // Some day, we may integrate build systems between protoc and the language
 // extensions to the point where we can do this test in a more automated way.
 
-void RubyTest(string proto_file) {
-  std::string ruby_tests = FindRubyTestDir();
+TEST(RubyGeneratorTest, GeneratorTest) {
+  string ruby_tests = FindRubyTestDir();
 
   google::protobuf::compiler::CommandLineInterface cli;
   cli.SetInputsAreProtoPathRelative(true);
@@ -67,61 +66,40 @@ void RubyTest(string proto_file) {
   cli.RegisterGenerator("--ruby_out", &ruby_generator, "");
 
   // Copy generated_code.proto to the temporary test directory.
-  std::string test_input;
+  string test_input;
   GOOGLE_CHECK_OK(File::GetContents(
-      ruby_tests + proto_file + ".proto",
+      ruby_tests + "/ruby_generated_code.proto",
       &test_input,
       true));
   GOOGLE_CHECK_OK(File::SetContents(
-      TestTempDir() + proto_file + ".proto",
+      TestTempDir() + "/ruby_generated_code.proto",
       test_input,
       true));
 
   // Invoke the proto compiler (we will be inside TestTempDir() at this point).
-  std::string ruby_out = "--ruby_out=" + TestTempDir();
-  std::string proto_path = "--proto_path=" + TestTempDir();
-  std::string proto_target = TestTempDir() + proto_file + ".proto";
+  string ruby_out = "--ruby_out=" + TestTempDir();
+  string proto_path = "--proto_path=" + TestTempDir();
   const char* argv[] = {
     "protoc",
     ruby_out.c_str(),
     proto_path.c_str(),
-    proto_target.c_str(),
+    "ruby_generated_code.proto",
   };
 
   EXPECT_EQ(0, cli.Run(4, argv));
 
   // Load the generated output and compare to the expected result.
-  std::string output;
-  GOOGLE_CHECK_OK(File::GetContentsAsText(
-      TestTempDir() + proto_file + "_pb.rb",
+  string output;
+  GOOGLE_CHECK_OK(File::GetContents(
+      TestTempDir() + "/ruby_generated_code_pb.rb",
       &output,
       true));
-  std::string expected_output;
-  GOOGLE_CHECK_OK(File::GetContentsAsText(
-      ruby_tests + proto_file + "_pb.rb",
+  string expected_output;
+  GOOGLE_CHECK_OK(File::GetContents(
+      ruby_tests + "/ruby_generated_code_pb.rb",
       &expected_output,
       true));
   EXPECT_EQ(expected_output, output);
-}
-
-TEST(RubyGeneratorTest, Proto3GeneratorTest) {
-  RubyTest("/ruby_generated_code");
-}
-
-TEST(RubyGeneratorTest, Proto2GeneratorTest) {
-    RubyTest("/ruby_generated_code_proto2");
-}
-
-TEST(RubyGeneratorTest, Proto3ImplicitPackageTest) {
-    RubyTest("/ruby_generated_pkg_implicit");
-}
-
-TEST(RubyGeneratorTest, Proto3ExplictPackageTest) {
-    RubyTest("/ruby_generated_pkg_explicit");
-}
-
-TEST(RubyGeneratorTest, Proto3ExplictLegacyPackageTest) {
-    RubyTest("/ruby_generated_pkg_explicit_legacy");
 }
 
 }  // namespace

@@ -44,14 +44,15 @@ public class Helloworld : MonoBehaviour {
         local protoc = require 'protoc'
 
         assert(protoc:load [[
+        syntax = ""proto3"";
         message Phone {
-            optional string name        = 1;
-            optional int64  phonenumber = 2;
+            string name        = 1;
+            int64  phonenumber = 2;
         }
         message Person {
-            optional string name     = 1;
-            optional int32  age      = 2;
-            optional string address  = 3;
+            string name     = 1;
+            int32  age      = 2;
+            string address  = 3;
             repeated Phone  contacts = 4;
         } ]])
 

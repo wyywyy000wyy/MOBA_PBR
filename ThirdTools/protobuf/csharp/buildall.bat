@@ -11,3 +11,4 @@ goto :EOF
 :error
 echo Failed!
 exit /b %errorlevel%
+pause
