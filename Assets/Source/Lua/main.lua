@@ -26,6 +26,8 @@ require("Base/behaviour_bridge")
 
 require("config")
 
+require("Base/Net/NetManager")
+
 add_require("Map/Map")
 add_require("Map/MapController")
 
@@ -75,22 +77,22 @@ function main()
     collectgarbage("setpause", 100)
     collectgarbage("setstepmul", 500)
 
+    NetManager:Init()
     math.randomseed(os.time())
     CS.XLoader.Initialize(true)
-
     coroutine.wrap(run_all_action)(function()
+        NetManager:Connect("127.0.0.1", 52012)
+    --     -- CS.XLoader.LoadAsync("Effects/GameObject.prefab", typeof(U.GameObject),function(go)
+    --     --     ELOG("loaded GameObject", go)
+    --     --     U.GameObject.Instantiate(go)
+    --     -- end)
+    --     LOG("run_all_action done")
+    --     local map = Map.new()
+    --     map:LoadMap("Scene01")
 
-        -- CS.XLoader.LoadAsync("Effects/GameObject.prefab", typeof(U.GameObject),function(go)
-        --     ELOG("loaded GameObject", go)
-        --     U.GameObject.Instantiate(go)
-        -- end)
-        LOG("run_all_action done")
-        local map = Map.new()
-        map:LoadMap("Scene01")
 
-
-        unload_unused_memory_on_next_frame()
-        lock_g_variable()
+    --     unload_unused_memory_on_next_frame()
+    --     lock_g_variable()
     end)
 
 end

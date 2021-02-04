@@ -5,15 +5,17 @@ using UnityEngine;
 using XLua;
 
 [LuaCallCSharp]
-public class WarNet : MonoBehaviour, ISington
+public class WarNet : MonoBehaviour//, ISington
 {
     public static WarNet instance
     {
-        get { return SingtonMng.GetMono<WarNet>(); }
+        get { return _instance; }
     }
 
+    private static WarNet _instance;
+
     public Action<NetEventType> onNetEvent;
-    public Action<Msg> onReceivePacketEvent;
+    public Action<Packet> onReceivePacketEvent;
 
     ConnectionProxy cp;
     ArrayList eventQueue;
@@ -25,12 +27,18 @@ public class WarNet : MonoBehaviour, ISington
         packetQueue = ArrayList.Synchronized(new ArrayList());
     }
 
-    public void Connect(string host, int port, bool isEncode)
+    void Start()
     {
-        Connect(new string[] { host }, port, isEncode);
+        _instance = this;
+        SingtonInit();
     }
 
-    public void Connect(string[] host, int port, bool isEncode)
+    public void Connect(string host, int port)
+    {
+        Connect(new string[] { host }, port);
+    }
+
+    public void Connect(string[] host, int port)
     {
         Clear();
         cp = new ConnectionProxy();
@@ -54,11 +62,10 @@ public class WarNet : MonoBehaviour, ISington
 
         cp.onConnectEvent += () =>
         {
-            if (!isEncode)
-                eventQueue.Add(NetEventType.CONNECT);
+            eventQueue.Add(NetEventType.CONNECT);
         };
 
-        cp.onReceiveEvent += (Msg p) =>
+        cp.onReceiveEvent += (Packet p) =>
         {
             {
                 packetQueue.Add(p);
@@ -67,7 +74,7 @@ public class WarNet : MonoBehaviour, ISington
         cp.Connect(host[index], port);
     }
 
-    public void Send(Msg p)
+    public void Send(Packet p)
     {
         if (cp != null)
             cp.Send(p);
@@ -85,7 +92,7 @@ public class WarNet : MonoBehaviour, ISington
         }
         for (int i = 0; i < 3 && packetQueue.Count > 0; i++)
         {
-            Msg p = (Msg)packetQueue[0];
+            Packet p = (Packet)packetQueue[0];
             packetQueue.RemoveAt(0);
             if (onReceivePacketEvent != null)
                 onReceivePacketEvent(p);

@@ -26,7 +26,7 @@ public class Main : MonoBehaviour
         {
             return LuaFilePicker.Load(fn);
         });
-
+        currentLuaEnv.AddBuildin("pb", XLua.LuaDLL.Lua.LoadLuaProfobuf);
         currentLuaEnv.DoString("require '" + Defines.LuaEntryFileName + "'");
 
     }

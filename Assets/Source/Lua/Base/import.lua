@@ -84,4 +84,7 @@ U.LuaBridgeBase = CS.LuaBridgeBase
 U.LuaBridgeType = U.GHelper.TraveEnumToLuaTable(typeof(CS.LuaBridgeType), {})
 U.UnityBehaviourFunc =U.GHelper.TraveEnumToLuaTable(typeof(CS.UnityBehaviourFunc), {})
 
+U.Packet = CS.Packet
+U.WarNet = CS.WarNet
+
 _G.U = U

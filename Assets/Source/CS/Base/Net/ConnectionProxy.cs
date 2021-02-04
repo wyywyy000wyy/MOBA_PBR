@@ -10,7 +10,7 @@ using pb = global::Google.Protobuf;
 
 public class ConnectionProxy
 {
-    public Action<Msg> onReceiveEvent;
+    public Action<Packet> onReceiveEvent;
     public Action onConnectEvent;
     public Action onConnectErrorEvent;
     public Action onCloseEvent;
@@ -79,7 +79,7 @@ public class ConnectionProxy
         }
     }
 
-    public void Send(Msg p)
+    public void Send(Packet p)
     {
         if (sendQueue != null)
         {
@@ -148,6 +148,9 @@ public class ConnectionProxy
         sendQueue = ArrayList.Synchronized(new ArrayList());
         sendThread = new Thread(new ThreadStart(SendHandler));
         sendThread.Start();
+
+        if (onConnectEvent != null)
+            onConnectEvent();
     }
 
     private void OnConnected(IAsyncResult rs)
@@ -167,56 +170,56 @@ public class ConnectionProxy
 
     void ReceiveHandler()
     {
-        byte[] header = new byte[4];
+        byte[] header = new byte[8];
         byte[] buffer = new byte[204800];
 
         int len = 0;
         int nread = 0;
-        int size_int = sizeof(int);
+        int size_int = 8;// sizeof(int);
 
 
-        nread = 0;
-        while (nread < 8 && client.Connected)
-        {
-            try
-            {
-                nread += stream.Read(buffer, nread, 8 - nread);
-            }
-            catch (Exception e)
-            {
-                HandleRunningError(string.Format("[NET] stream.Read, catch:{0}", e));
-                return;
-            }
-        }
-        if (nread != 8)
-        {
-            HandleRunningError(string.Format("[NET]  stream.Read, Error nread({0}) != size_int({1}) ", nread, 8));
-            return;
-        }
-        uint a1 = BitConverter.ToUInt32(buffer, 0);
-        uint a2 = BitConverter.ToUInt32(buffer, 4);
-        if (a1 == 8)
-        {
-            if (a2 != 0)
-            {
-                try
-                {
-                    isShaked = true;
-                    Debug.Log("[WarNet.Connect]client Shake Finish...");
-                }
-                catch (Exception e)
-                {
-                    Debug.LogError(e.ToString());
-                    return;
-                }
-            }
-        }
-        else
-        {
-            return;
-        }
-        if (onConnectEvent != null)
-            onConnectEvent();
+        //nread = 0;
+        //while (nread < 8 && client.Connected)
+        //{
+        //    try
+        //    {
+        //        nread += stream.Read(buffer, nread, 8 - nread);
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        HandleRunningError(string.Format("[NET] stream.Read, catch:{0}", e));
+        //        return;
+        //    }
+        //}
+        //if (nread != 8)
+        //{
+        //    HandleRunningError(string.Format("[NET]  stream.Read, Error nread({0}) != size_int({1}) ", nread, 8));
+        //    return;
+        //}
+        //uint opCode = BitConverter.ToUInt32(buffer, 0);
+        //uint length = BitConverter.ToUInt32(buffer, 4);
+        //if (a1 == 8)
+        //{
+        //    if (a2 != 0)
+        //    {
+        //        try
+        //        {
+        //            isShaked = true;
+        //            Debug.Log("[WarNet.Connect]client Shake Finish...");
+        //        }
+        //        catch (Exception e)
+        //        {
+        //            Debug.LogError(e.ToString());
+        //            return;
+        //        }
+        //    }
+        //}
+        //else
+        //{
+        //    return;
+        //}
+        //if (onConnectEvent != null)
+        //    onConnectEvent();
 
         while (status == WorkingStatus.Working)
         {
@@ -239,11 +242,14 @@ public class ConnectionProxy
                 return;
             }
 
-            // 解密
-            if (decodeFunc != null)
-                decodeFunc(header, 4);
+            uint opCode = BitConverter.ToUInt32(header, 0);
+            len = BitConverter.ToInt32(header, 4);
 
-            len = BitConverter.ToInt32(header, 0) - 4;
+            //// 解密
+            //if (decodeFunc != null)
+            //    decodeFunc(header, 4);
+
+            //len = BitConverter.ToInt32(header, 0) - 4;
             // len = IPAddress.NetworkToHostOrder(len);
 
             if (buffer.Length < len)
@@ -278,11 +284,12 @@ public class ConnectionProxy
             if (decodeFunc != null)
                 decodeFunc(buffer, len);
 
+            Packet packet = new Packet(opCode, buffer);
             // 解密
-            pb::CodedInputStream input = new pb.CodedInputStream(buffer);
-            Msg packet = new Msg();
-            //packet.Set(len, buffer, 0);
-            packet.MergeFrom(input);
+            //pb::CodedInputStream input = new pb.CodedInputStream(buffer);
+            //Packet packet = new Packet();
+            ////packet.Set(len, buffer, 0);
+            //packet.MergeFrom(input);
 
 
             if (onReceiveEvent != null)
@@ -300,7 +307,7 @@ public class ConnectionProxy
 #endif
             while (sendQueue.Count > 0)
             {
-                Msg packet = (Msg)sendQueue[0];
+                Packet packet = (Packet)sendQueue[0];
                 // Debug.Log(packet);
                 //  packet.Finish();
                 sendQueue.RemoveAt(0);
@@ -309,7 +316,14 @@ public class ConnectionProxy
                     //if (encodeFunc != null)
                     //    encodeFunc(packet.GetBytes(), packet.Size);
                     //encode;
-                    stream.Write(packet.Data.ToByteArray(), 0, packet.Data.Length);
+
+
+                    stream.Write(BitConverter.GetBytes(packet.header.opCode), 0, 4);
+                    stream.Write(BitConverter.GetBytes(packet.header.length), 0, 4);
+                    if(packet.header.length > 0)
+                    {
+                        stream.Write(packet.body, 0, packet.body.Length);
+                    }
                 }
                 catch (Exception e)
                 {
