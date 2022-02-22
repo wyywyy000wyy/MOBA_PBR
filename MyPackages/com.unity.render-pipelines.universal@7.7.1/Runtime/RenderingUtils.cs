@@ -203,7 +203,7 @@ namespace UnityEngine.Rendering.Universal
         // This is used to render materials that contain built-in shader passes not compatible with URP. 
         // It will render those legacy passes with error/pink shader.
         [Conditional("DEVELOPMENT_BUILD"), Conditional("UNITY_EDITOR")]
-        internal static void RenderObjectsWithError(ScriptableRenderContext context, ref CullingResults cullResults, Camera camera, FilteringSettings filterSettings, SortingCriteria sortFlags)
+        public static void RenderObjectsWithError(ScriptableRenderContext context, ref CullingResults cullResults, Camera camera, FilteringSettings filterSettings, SortingCriteria sortFlags)
         {
             // TODO: When importing project, AssetPreviewUpdater::CreatePreviewForAsset will be called multiple times.
             // This might be in a point that some resources required for the pipeline are not finished importing yet.

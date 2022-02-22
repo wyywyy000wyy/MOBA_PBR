@@ -54,6 +54,7 @@
 
             sampler2D _MainTex;
             float4 _MainTex_ST;
+            sampler2D _RenderOpaquePassTexture;
 
             samplerCUBE _Cubemap;
 
@@ -130,6 +131,8 @@
                 //float3 waterColor = diffuseLight * _WaterColor + reflectionSample * specularLight;
                 //half4 col = half4(waterColor * _WaterColor, reflectance);
                 half4 col = half4(waterColor, reflectance);
+
+                col = tex2D(_RenderOpaquePassTexture, i.uv);
 
                 return col;
             }
