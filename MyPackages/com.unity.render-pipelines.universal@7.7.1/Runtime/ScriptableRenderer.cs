@@ -90,7 +90,7 @@ namespace UnityEngine.Rendering.Universal
         /// </summary>
         /// <param name="cmd">CommandBuffer to submit data to GPU.</param>
         /// <param name="cameraData">CameraData containing camera matrices information.</param>
-        void SetPerCameraShaderVariables(CommandBuffer cmd, ref CameraData cameraData)
+        public void SetPerCameraShaderVariables(CommandBuffer cmd, ref CameraData cameraData)
         {
             Camera camera = cameraData.camera;
 
