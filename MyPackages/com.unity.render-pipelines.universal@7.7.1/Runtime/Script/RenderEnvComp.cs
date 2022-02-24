@@ -5,6 +5,9 @@ using UnityEngine;
 public class RenderEnvComp : MonoBehaviour
 {
     // Start is called before the first frame update
+    public float fov = 60;
+    public float near = 0.1f;
+    public float far = 10;
     void Start()
     {
         UnityEngine.Rendering.Universal.Internal.RenderOpaquePass.m_EnvComp = this;

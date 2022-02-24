@@ -28,7 +28,7 @@ public class RenderOpaquePass : ScriptableRenderPass
         public RenderOpaquePass(bool opaque, RenderPassEvent evt, RenderQueueRange renderQueueRange, LayerMask layerMask, StencilState stencilState, int stencilReference)
         {
             m_TargetAttachment.Init("_RenderOpaquePassTexture");
-            m_RenderDescroptor = new RenderTextureDescriptor(1024,1024,RenderTextureFormat.ARGB32, 24);
+            m_RenderDescroptor = new RenderTextureDescriptor(1024,1024,RenderTextureFormat.ARGB32, 32);
             m_VirtualCamera = new Camera();
 
             m_ProfilingSampler = new ProfilingSampler(m_ProfilerTag);
@@ -69,8 +69,24 @@ public class RenderOpaquePass : ScriptableRenderPass
             CameraData cameraData = renderingData.cameraData ;//new CameraData();
             m_VirtualCamera = cameraData.camera;
 
-            Matrix4x4 virtualViewMatrix = m_EnvComp != null ? Matrix4x4.LookAt(m_EnvComp.transform.position, m_EnvComp.transform.forward, m_EnvComp.transform.up) : m_VirtualCamera.worldToCameraMatrix ;
-            Matrix4x4 virtualProjectMatrix = m_VirtualCamera.projectionMatrix;
+
+
+            Matrix4x4 virtualViewMatrix =  m_EnvComp != null ? Matrix4x4.LookAt(m_EnvComp.transform.position, m_EnvComp.transform.position - m_EnvComp.transform.up, m_EnvComp.transform.forward).inverse : m_VirtualCamera.worldToCameraMatrix ;
+            if(m_EnvComp != null)
+            {
+                Vector3 right = m_EnvComp.transform.right;
+                Vector3 forward = -m_EnvComp.transform.up;
+                Vector3 up = m_EnvComp.transform.forward;
+                Vector3 worldPos = m_EnvComp.transform.position;
+                Matrix4x4 rot = new Matrix4x4(
+                    right,
+                    up,
+                    -forward,
+                    new Vector4(worldPos.x, worldPos.y, worldPos.z, 1));
+                virtualViewMatrix = rot.inverse;
+            }
+            
+            Matrix4x4 virtualProjectMatrix = m_EnvComp != null ? Matrix4x4.Perspective(m_EnvComp.fov, m_EnvComp.transform.localScale.x / m_EnvComp.transform.localScale.z, m_EnvComp.near, m_EnvComp.far) : m_VirtualCamera.projectionMatrix;
 
             Plane mirrorPlane = new Plane();
             Vector4 clipPlane = new Vector4( mirrorPlane.normal.x, mirrorPlane.normal.y, mirrorPlane.normal.z, mirrorPlane.distance); 
@@ -83,13 +99,13 @@ public class RenderOpaquePass : ScriptableRenderPass
 
             clipPlane *= (2.0f / (Vector4.Dot(clipPlane,  q )));
 
-            if(m_EnvComp != null)
-            {
-			virtualProjectMatrix[ 2 ] = clipPlane.x;
-			virtualProjectMatrix[ 6 ] = clipPlane.y;
-			virtualProjectMatrix[ 10 ] = clipPlane.z + 1.0f - clipBias;
-			virtualProjectMatrix[ 14 ] = clipPlane.w;
-            }
+            //if (m_EnvComp != null)
+            //{
+            //    virtualProjectMatrix[2] = clipPlane.x;
+            //    virtualProjectMatrix[6] = clipPlane.y;
+            //    virtualProjectMatrix[10] = clipPlane.z + 1.0f - clipBias;
+            //    virtualProjectMatrix[14] = clipPlane.w;
+            //}
 
 
             if (!m_VirtualCamera.TryGetCullingParameters(m_VirtualCamera, out var cullingParameters))
@@ -129,6 +145,8 @@ public class RenderOpaquePass : ScriptableRenderPass
 
             using (new ProfilingScope(cmd, m_ProfilingSampler))
             {
+                cmd.ClearRenderTarget(true, true, Color.black);
+
                 Vector4 drawObjectPassData = new Vector4(0.0f, 0.0f, 0.0f, (m_IsOpaque) ? 1.0f : 0.0f);
                 cmd.SetGlobalVector(s_DrawObjectPassDataPropID, drawObjectPassData);
                 context.ExecuteCommandBuffer(cmd);
@@ -154,6 +172,7 @@ public class RenderOpaquePass : ScriptableRenderPass
             
             }
             // RenderingUtils.SetViewAndProjectionMatrices(cmd, cameraData.GetViewMatrix(), cameraData.GetGPUProjectionMatrix(), false);
+            cmd.ClearRenderTarget(true,false,Color.black);
             cmd.SetViewProjectionMatrices(cameraData.GetViewMatrix(), cameraData.GetGPUProjectionMatrix());
             // renderingData.cameraData.renderer.SetPerCameraShaderVariables(cmd, ref renderingData.cameraData);
             context.ExecuteCommandBuffer(cmd);
