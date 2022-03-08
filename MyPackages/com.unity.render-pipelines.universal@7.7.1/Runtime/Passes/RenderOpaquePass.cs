@@ -6,8 +6,8 @@ using UnityEngine.Rendering.Universal;
 namespace UnityEngine.Rendering.Universal.Internal
 {
 
-public class RenderOpaquePass : ScriptableRenderPass
-{
+    public class RenderOpaquePass : ScriptableRenderPass
+    {
         public static RenderEnvComp m_EnvComp;
         RenderTargetHandle m_TargetAttachment;
         RenderTextureDescriptor m_RenderDescroptor;
@@ -28,7 +28,7 @@ public class RenderOpaquePass : ScriptableRenderPass
         public RenderOpaquePass(bool opaque, RenderPassEvent evt, RenderQueueRange renderQueueRange, LayerMask layerMask, StencilState stencilState, int stencilReference)
         {
             m_TargetAttachment.Init("_RenderOpaquePassTexture");
-            m_RenderDescroptor = new RenderTextureDescriptor(1024,1024,RenderTextureFormat.ARGB32, 32);
+            m_RenderDescroptor = new RenderTextureDescriptor(1024, 1024, RenderTextureFormat.ARGB32, 32);
             m_VirtualCamera = new Camera();
 
             m_ProfilingSampler = new ProfilingSampler(m_ProfilerTag);
@@ -54,6 +54,28 @@ public class RenderOpaquePass : ScriptableRenderPass
             cmd.GetTemporaryRT(m_TargetAttachment.id, m_RenderDescroptor);
             ConfigureTarget(m_TargetAttachment.Identifier());
         }
+
+        void ModifyProjectionMatrix(ref Matrix4x4 project, Vector4 clipPlane)
+        {
+            Matrix4x4 matrix = project;
+            //float matrix[16];
+            Vector4 q;
+            //// Grab the current projection matrix from OpenGL.
+            //glGetFloatv(GL_PROJECTION_MATRIX, matrix);
+            q.x = (Mathf.Sign(clipPlane.x) + matrix[8]) / matrix[0];
+            q.y = (Mathf.Sign(clipPlane.y) + matrix[9]) / matrix[5];
+            q.z = -1.0F;
+            q.w = (1.0F + matrix[10]) / matrix[14];
+                // Calculate the scaled plane vector using Equation (5.68)
+                // and replace the third row of the projection matrix.
+                Vector4 c = clipPlane * (2.0F / Vector4.Dot(clipPlane, q));
+                    matrix[2] = c.x;
+            matrix[6] = c.y;
+            matrix[10] = c.z + 1.0F;
+            matrix[14] = c.w;
+            project = matrix;
+    }
+
         public override void Execute(ScriptableRenderContext context, ref RenderingData renderingData)
         {
             // if(m_EnvComp == null)
@@ -71,8 +93,10 @@ public class RenderOpaquePass : ScriptableRenderPass
 
 
 
-            Matrix4x4 virtualViewMatrix =  m_EnvComp != null ? Matrix4x4.LookAt(m_EnvComp.transform.position, m_EnvComp.transform.position - m_EnvComp.transform.up, m_EnvComp.transform.forward).inverse : m_VirtualCamera.worldToCameraMatrix ;
-            if(m_EnvComp != null)
+            Matrix4x4 virtualViewMatrix = m_VirtualCamera.worldToCameraMatrix ;
+
+            Plane plane = new Plane(m_EnvComp.transform.up, m_EnvComp.transform.position);
+            if (m_EnvComp != null)
             {
                 Vector3 right = m_EnvComp.transform.right;
                 Vector3 forward = -m_EnvComp.transform.up;
@@ -84,9 +108,11 @@ public class RenderOpaquePass : ScriptableRenderPass
                     -forward,
                     new Vector4(worldPos.x, worldPos.y, worldPos.z, 1));
                 virtualViewMatrix = rot.inverse;
+
+
             }
-            
-            Matrix4x4 virtualProjectMatrix = m_EnvComp != null ? Matrix4x4.Perspective(m_EnvComp.fov, m_EnvComp.transform.localScale.x / m_EnvComp.transform.localScale.z, m_EnvComp.near, m_EnvComp.far) : m_VirtualCamera.projectionMatrix;
+
+            Matrix4x4 virtualProjectMatrix =  m_VirtualCamera.projectionMatrix;
 
             Plane mirrorPlane = new Plane();
             Vector4 clipPlane = new Vector4( mirrorPlane.normal.x, mirrorPlane.normal.y, mirrorPlane.normal.z, mirrorPlane.distance); 
