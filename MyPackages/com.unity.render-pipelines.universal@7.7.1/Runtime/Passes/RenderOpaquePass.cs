@@ -88,50 +88,50 @@ namespace UnityEngine.Rendering.Universal.Internal
             m_EnvComp = null;
             m_EnvComp = GameObject.Find("Plane (5)")?.GetComponent<RenderEnvComp>();
 
+            Camera renderCamera = renderingData.cameraData.camera;
             CameraData cameraData = renderingData.cameraData ;//new CameraData();
             m_VirtualCamera = cameraData.camera;
 
 
 
             Matrix4x4 virtualViewMatrix = m_VirtualCamera.worldToCameraMatrix ;
+            Matrix4x4 virtualProjectMatrix = m_VirtualCamera.projectionMatrix;
 
-            Plane plane = new Plane(m_EnvComp.transform.up, m_EnvComp.transform.position);
             if (m_EnvComp != null)
             {
                 Vector3 right = m_EnvComp.transform.right;
                 Vector3 forward = -m_EnvComp.transform.up;
                 Vector3 up = m_EnvComp.transform.forward;
-                Vector3 worldPos = m_EnvComp.transform.position;
-                Matrix4x4 rot = new Matrix4x4(
-                    right,
-                    up,
-                    -forward,
-                    new Vector4(worldPos.x, worldPos.y, worldPos.z, 1));
-                virtualViewMatrix = rot.inverse;
+                Vector3 mirrorPos = m_EnvComp.transform.position;
+                //Matrix4x4 rot = new Matrix4x4(
+                //    right,
+                //    up,
+                //    -forward,
+                //    new Vector4(worldPos.x, worldPos.y, worldPos.z, 1));
+                //virtualViewMatrix = rot.inverse;
 
+                Vector3 planeUp = m_EnvComp.transform.up;
+                Vector3 cameraPos = renderCamera.transform.position;
+                Vector3 cameraUp = renderCamera.transform.up;
+                Vector3 view = mirrorPos - Vector3.Reflect(mirrorPos - cameraPos, planeUp);
 
+                Vector3 cameraTarget = cameraPos + renderCamera.transform.forward;
+                Vector3 viewTarget = mirrorPos - Vector3.Reflect(mirrorPos - cameraTarget, planeUp);
+                Vector3 viewForward = (viewTarget - view).normalized;
+                Vector3 viewUp = Vector3.Reflect(-cameraUp, planeUp).normalized;
+                Vector3 viewRight = Vector3.Cross(viewUp, viewForward);
+
+                virtualViewMatrix = (new Matrix4x4(
+                        viewRight,
+                        viewUp,
+                        viewForward,
+                        new Vector4(view.x, view.y, view.z, 1))).inverse;
+
+                Plane mirrorPlane = new Plane(planeUp, mirrorPos);
+                Vector4 clipPlane = new Vector4(mirrorPlane.normal.x, mirrorPlane.normal.y, mirrorPlane.normal.z, mirrorPlane.distance);
+
+                //ModifyProjectionMatrix(ref virtualProjectMatrix, clipPlane);
             }
-
-            Matrix4x4 virtualProjectMatrix =  m_VirtualCamera.projectionMatrix;
-
-            Plane mirrorPlane = new Plane();
-            Vector4 clipPlane = new Vector4( mirrorPlane.normal.x, mirrorPlane.normal.y, mirrorPlane.normal.z, mirrorPlane.distance); 
-            Vector4 q = new Vector4();
-
-            q.x = ( Mathf.Sign( clipPlane.x ) + virtualProjectMatrix[ 8 ] ) / virtualProjectMatrix[ 0 ];
-			q.y = ( Mathf.Sign( clipPlane.y ) + virtualProjectMatrix[ 9 ] ) / virtualProjectMatrix[ 5 ];
-			q.z = - 1.0f;
-			q.w = ( 1.0f + virtualProjectMatrix[ 10 ] ) / virtualProjectMatrix[ 14 ]; // Calculate the scaled plane vector
-
-            clipPlane *= (2.0f / (Vector4.Dot(clipPlane,  q )));
-
-            //if (m_EnvComp != null)
-            //{
-            //    virtualProjectMatrix[2] = clipPlane.x;
-            //    virtualProjectMatrix[6] = clipPlane.y;
-            //    virtualProjectMatrix[10] = clipPlane.z + 1.0f - clipBias;
-            //    virtualProjectMatrix[14] = clipPlane.w;
-            //}
 
 
             if (!m_VirtualCamera.TryGetCullingParameters(m_VirtualCamera, out var cullingParameters))
