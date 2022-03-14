@@ -47,6 +47,7 @@
                 float3 positionWS : TEXCOORD1;
                 float3 normalWS : TEXCOORD2;
                 float3 viewDirectionWS : TEXCOORD3;
+                float2 uvMirror : TEXCOORD4;
             };
 
 
@@ -58,6 +59,7 @@
 
             samplerCUBE _Cubemap;
 
+            float4x4 virtualMatrix;
             float _flowSpeed;
             float4 _flowDir;
             float3 _WaterColor;
@@ -74,7 +76,8 @@
                 o.normalWS = TransformObjectToWorldNormal(v.normalOS);
                 o.uv = TRANSFORM_TEX(v.uv, _MainTex);
                 o.viewDirectionWS = _WorldSpaceCameraPos.xyz - o.positionWS;
-
+                float4 mirrorPos = mul(virtualMatrix, float4(o.positionWS,1));
+                o.uvMirror = (mirrorPos.xy / mirrorPos.w + 1 ) * 0.5;
                 return o;
             }
 
@@ -120,20 +123,23 @@
                 float F0 = 0.2;
                 float reflectance = F0 + (1 - F0) * pow(1 - theta, 5.0);
 
+                half4 refColor = tex2D(_RenderOpaquePassTexture, i.uvMirror);
+
 
                 float3 scatter = max(0.0, dot(normal, eyeDirection)) *_WaterColor;
                 //float3 reflectionSample = half3(1, 1, 1);
-                float3 reflectionSample = texCUBE(_Cubemap, eyeDirection).rgb;
+                float3 reflectionSample = refColor;// texCUBE(_Cubemap, eyeDirection).rgb;
                 float3 diffuseColor = _WaterColor * diffuseLight;// +scatter;
                 //diffuseColor = normal;
-                float3 waterColor = lerp(diffuseColor, half3(0.1f,0.1f,0.1f) + reflectionSample * 0.9 + reflectionSample * specularLight, reflectance);
+                //float3 waterColor = lerp(diffuseColor, half3(0.1f, 0.1f, 0.1f) + reflectionSample * 0.9 + reflectionSample * specularLight, reflectance);
+                float3 waterColor = lerp(diffuseColor, reflectionSample, reflectance);
 
                 //float3 waterColor = diffuseLight * _WaterColor + reflectionSample * specularLight;
                 //half4 col = half4(waterColor * _WaterColor, reflectance);
                 half4 col = half4(waterColor, reflectance);
 
-                col = tex2D(_RenderOpaquePassTexture, i.uv);
-
+                //col = tex2D(_RenderOpaquePassTexture, i.uvMirror);
+                col = refColor;
                 return col;
             }
 
