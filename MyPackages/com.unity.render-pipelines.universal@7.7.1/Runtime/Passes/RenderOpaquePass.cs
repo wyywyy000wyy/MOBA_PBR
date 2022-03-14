@@ -28,7 +28,13 @@ namespace UnityEngine.Rendering.Universal.Internal
         public RenderOpaquePass(bool opaque, RenderPassEvent evt, RenderQueueRange renderQueueRange, LayerMask layerMask, StencilState stencilState, int stencilReference)
         {
             m_TargetAttachment.Init("_RenderOpaquePassTexture");
-            m_RenderDescroptor = new RenderTextureDescriptor(1024, 1024, RenderTextureFormat.ARGB32, 32);
+            m_EnvComp = GameObject.Find("Plane (5)")?.GetComponent<RenderEnvComp>();
+            int dm = 1024;
+            if(m_EnvComp != null)
+            {
+                dm = m_EnvComp.d;
+            }
+            m_RenderDescroptor = new RenderTextureDescriptor(dm, dm, RenderTextureFormat.ARGB32, 32);
             m_VirtualCamera = new Camera();
 
             m_ProfilingSampler = new ProfilingSampler(m_ProfilerTag);
@@ -118,18 +124,39 @@ namespace UnityEngine.Rendering.Universal.Internal
                 Vector3 cameraTarget = cameraPos + renderCamera.transform.forward;
                 Vector3 viewTarget = mirrorPos - Vector3.Reflect(mirrorPos - cameraTarget, planeUp);
                 Vector3 viewForward = (viewTarget - view).normalized;
-                Vector3 viewUp = Vector3.Reflect(-cameraUp, planeUp).normalized;
+                Vector3 viewUp = Vector3.Reflect(cameraUp, planeUp);
                 Vector3 viewRight = Vector3.Cross(viewUp, viewForward);
 
-                virtualViewMatrix = (new Matrix4x4(
-                        viewRight,
-                        viewUp,
-                        viewForward,
-                        new Vector4(view.x, view.y, view.z, 1))).inverse;
+                //virtualViewMatrix = (new Matrix4x4(
+                //        viewRight,
+                //        viewUp,
+                //        -viewForward,
+                //        new Vector4(
+                //            -Vector3.Dot(viewRight, view), 
+                //            -Vector3.Dot(viewUp, view), 
+                //            -Vector3.Dot(-viewForward, view),
+                //            1)));
+                Vector4 u = viewRight;// renderCamera.transform.right;
+                u.w = -Vector3.Dot(u, view);
+                Vector4 v = viewUp;// renderCamera.transform.up;
+                v.w = -Vector3.Dot(v, view);
+                Vector4 n = -viewForward;// renderCamera.transform.forward;
+                n.w = -Vector3.Dot(n, view);
+
+                virtualViewMatrix.SetRow(0, u);
+                virtualViewMatrix.SetRow(1, v);
+                virtualViewMatrix.SetRow(2, n);
+                virtualViewMatrix.SetRow(3, new Vector4(0,0,0,1));
+                Vector4 testUp11 = new Vector4(0, 1, 0, 1);
+                testUp11 = m_VirtualCamera.worldToCameraMatrix * testUp11;
+
+                Vector4 testUp = new Vector4(0, 1, 0,1);
+                testUp = virtualViewMatrix * testUp;
 
                 Plane mirrorPlane = new Plane(planeUp, mirrorPos);
                 Vector4 clipPlane = new Vector4(mirrorPlane.normal.x, mirrorPlane.normal.y, mirrorPlane.normal.z, mirrorPlane.distance);
 
+                m_EnvComp.SetVirtualMartrix(virtualProjectMatrix * virtualViewMatrix);
                 //ModifyProjectionMatrix(ref virtualProjectMatrix, clipPlane);
             }
 
@@ -193,9 +220,10 @@ namespace UnityEngine.Rendering.Universal.Internal
 
                 context.DrawRenderers(renderingData.cullResults, ref drawSettings, ref filterSettings, ref m_RenderStateBlock);
 
+                context.DrawSkybox(renderingData.cameraData.camera);
                 // Render objects that did not match any shader pass with error shader
                 // RenderingUtils.RenderObjectsWithError(context, ref renderingData.cullResults, camera, filterSettings, SortingCriteria.None);
-            
+
             }
             // RenderingUtils.SetViewAndProjectionMatrices(cmd, cameraData.GetViewMatrix(), cameraData.GetGPUProjectionMatrix(), false);
             cmd.ClearRenderTarget(true,false,Color.black);
