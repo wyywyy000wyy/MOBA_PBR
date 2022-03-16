@@ -153,11 +153,29 @@ namespace UnityEngine.Rendering.Universal.Internal
                 Vector4 testUp = new Vector4(0, 1, 0,1);
                 testUp = virtualViewMatrix * testUp;
 
-                Plane mirrorPlane = new Plane(planeUp, mirrorPos);
-                Vector4 clipPlane = new Vector4(mirrorPlane.normal.x, mirrorPlane.normal.y, mirrorPlane.normal.z, mirrorPlane.distance);
+                Matrix4x4 virtualCameraWorldMatrix = new Matrix4x4(
+                    viewRight,
+                    viewUp,
+                    viewForward,
+                    new Vector4(view.x, view.y, view.z,1)
+                    );
 
+                Plane mirrorPlane = new Plane(planeUp, mirrorPos);
+                Vector4 clipPlane;// = new Vector4(mirrorPlane.normal.x, mirrorPlane.normal.y, mirrorPlane.normal.z, mirrorPlane.distance);
+                {
+                    //virtualCameraWorldMatrix = virtualCameraWorldMatrix.inverse;
+                    //Matrix4x4 normalMatrix = virtualCameraWorldMatrix.inverse.transpose;
+                    Matrix4x4 normalMatrix = virtualCameraWorldMatrix.transpose;
+                    Vector3 mn = normalMatrix.MultiplyVector(mirrorPlane.normal).normalized;
+                    Vector3 point = mirrorPlane.normal * (-mirrorPlane.distance);
+                    float constant = -Vector3.Dot(point, mn);
+                    clipPlane = new Vector4(mn.x, mn.y, mn.z, constant);
+                }
+
+
+                //clipPlane = virtualViewMatrix * clipPlane;
                 m_EnvComp.SetVirtualMartrix(virtualProjectMatrix * virtualViewMatrix);
-                //ModifyProjectionMatrix(ref virtualProjectMatrix, clipPlane);
+                ModifyProjectionMatrix(ref virtualProjectMatrix, clipPlane);
             }
 
 
