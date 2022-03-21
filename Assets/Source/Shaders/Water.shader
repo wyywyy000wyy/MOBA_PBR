@@ -47,7 +47,7 @@
                 float3 positionWS : TEXCOORD1;
                 float3 normalWS : TEXCOORD2;
                 float3 viewDirectionWS : TEXCOORD3;
-                float2 uvMirror : TEXCOORD4;
+                float4 uvMirror : TEXCOORD4;
             };
 
 
@@ -76,8 +76,10 @@
                 o.normalWS = TransformObjectToWorldNormal(v.normalOS);
                 o.uv = TRANSFORM_TEX(v.uv, _MainTex);
                 o.viewDirectionWS = _WorldSpaceCameraPos.xyz - o.positionWS;
-                float4 mirrorPos = mul(virtualMatrix, float4(o.positionWS,1));
-                o.uvMirror = (mirrorPos.xy / mirrorPos.w + 1 ) * 0.5;
+                //float4 mirrorPos = mul(virtualMatrix, float4(o.positionWS, 1));
+                float4 mirrorPos = mul(virtualMatrix, v.vertex);
+                o.uvMirror = mirrorPos;
+                //o.uvMirror.xy = (mirrorPos.xy / mirrorPos.w + 1) * 0.5;
                 return o;
             }
 
@@ -123,7 +125,8 @@
                 float F0 = 0.2;
                 float reflectance = F0 + (1 - F0) * pow(1 - theta, 5.0);
 
-                half4 refColor = tex2D(_RenderOpaquePassTexture, i.uvMirror);
+                half4 refColor = tex2D(_RenderOpaquePassTexture, (i.uvMirror.xy/i.uvMirror.w + 1) * 0.5);
+                //half4 refColor = textureProjExternal(_RenderOpaquePassTexture, i.uvMirror);
 
 
                 float3 scatter = max(0.0, dot(normal, eyeDirection)) *_WaterColor;

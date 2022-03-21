@@ -94,6 +94,8 @@ namespace UnityEngine.Rendering.Universal.Internal
             m_EnvComp = null;
             m_EnvComp = GameObject.Find("Plane (5)")?.GetComponent<RenderEnvComp>();
 
+            //Camera VirtualCamera = GameObject.Find("VirtualCamera")?.GetComponent<Camera>();
+
             Camera renderCamera = renderingData.cameraData.camera;
             CameraData cameraData = renderingData.cameraData ;//new CameraData();
             m_VirtualCamera = cameraData.camera;
@@ -116,26 +118,28 @@ namespace UnityEngine.Rendering.Universal.Internal
                 //    new Vector4(worldPos.x, worldPos.y, worldPos.z, 1));
                 //virtualViewMatrix = rot.inverse;
 
+                Camera virtualCamera = new Camera();
+
                 Vector3 planeUp = m_EnvComp.transform.up;
                 Vector3 cameraPos = renderCamera.transform.position;
                 Vector3 cameraUp = renderCamera.transform.up;
                 Vector3 view = mirrorPos - Vector3.Reflect(mirrorPos - cameraPos, planeUp);
 
                 Vector3 cameraTarget = cameraPos + renderCamera.transform.forward;
+
+                
+                
                 Vector3 viewTarget = mirrorPos - Vector3.Reflect(mirrorPos - cameraTarget, planeUp);
+                //{
+                //    //TMP
+                //    view = new Vector3(24.047180520002573f, -39.43195857764696f, 145.84470054505104f);
+                //    viewTarget = new Vector3(23.884495678809213f,-39.42903627610944f,144.8580267881285f);
+                //}
+
                 Vector3 viewForward = (viewTarget - view).normalized;
                 Vector3 viewUp = Vector3.Reflect(cameraUp, planeUp);
                 Vector3 viewRight = Vector3.Cross(viewUp, viewForward);
 
-                //virtualViewMatrix = (new Matrix4x4(
-                //        viewRight,
-                //        viewUp,
-                //        -viewForward,
-                //        new Vector4(
-                //            -Vector3.Dot(viewRight, view), 
-                //            -Vector3.Dot(viewUp, view), 
-                //            -Vector3.Dot(-viewForward, view),
-                //            1)));
                 Vector4 u = viewRight;// renderCamera.transform.right;
                 u.w = -Vector3.Dot(u, view);
                 Vector4 v = viewUp;// renderCamera.transform.up;
@@ -147,11 +151,18 @@ namespace UnityEngine.Rendering.Universal.Internal
                 virtualViewMatrix.SetRow(1, v);
                 virtualViewMatrix.SetRow(2, n);
                 virtualViewMatrix.SetRow(3, new Vector4(0,0,0,1));
-                Vector4 testUp11 = new Vector4(0, 1, 0, 1);
-                testUp11 = m_VirtualCamera.worldToCameraMatrix * testUp11;
 
-                Vector4 testUp = new Vector4(0, 1, 0,1);
-                testUp = virtualViewMatrix * testUp;
+                //VirtualCamera.transform.position = view;
+                //VirtualCamera.transform.up = viewUp;
+                //VirtualCamera.transform.right = viewRight;
+                //VirtualCamera.transform.forward = viewForward;
+
+                //VirtualCamera.projectionMatrix = m_VirtualCamera.projectionMatrix;
+                //VirtualCamera.worldToCameraMatrix = virtualViewMatrix;
+
+
+                //virtualCamera.projectionMatrix = m_VirtualCamera.projectionMatrix;
+                //virtualCamera.worldToCameraMatrix = virtualViewMatrix;
 
                 Matrix4x4 virtualCameraWorldMatrix = new Matrix4x4(
                     viewRight,
@@ -163,19 +174,30 @@ namespace UnityEngine.Rendering.Universal.Internal
                 Plane mirrorPlane = new Plane(planeUp, mirrorPos);
                 Vector4 clipPlane;// = new Vector4(mirrorPlane.normal.x, mirrorPlane.normal.y, mirrorPlane.normal.z, mirrorPlane.distance);
                 {
-                    //virtualCameraWorldMatrix = virtualCameraWorldMatrix.inverse;
-                    //Matrix4x4 normalMatrix = virtualCameraWorldMatrix.inverse.transpose;
-                    Matrix4x4 normalMatrix = virtualCameraWorldMatrix.transpose;
-                    Vector3 mn = normalMatrix.MultiplyVector(mirrorPlane.normal).normalized;
-                    Vector3 point = mirrorPlane.normal * (-mirrorPlane.distance);
-                    float constant = -Vector3.Dot(point, mn);
-                    clipPlane = new Vector4(mn.x, mn.y, mn.z, constant);
+                    Vector3 virtualCameraSpaceNormal = virtualViewMatrix.MultiplyVector(planeUp);
+                    Vector3 virtualCameraSpacePos = virtualViewMatrix.MultiplyPoint(mirrorPos);
+
+                    Plane plane = new Plane(virtualCameraSpaceNormal, virtualCameraSpacePos);
+
+                    clipPlane = new Vector4(plane.normal.x, plane.normal.y, plane.normal.z, plane.distance);
+                    //Matrix4x4 normalMatrix = virtualCameraWorldMatrix.transpose;
+                    //Vector3 mn = normalMatrix.MultiplyVector(mirrorPlane.normal).normalized;
+                    //Vector3 point = mirrorPlane.normal * (-mirrorPlane.distance);
+                    //float constant = -Vector3.Dot(point, mn);
+                    //clipPlane = new Vector4(mn.x, mn.y, mn.z, constant);
                 }
 
 
                 //clipPlane = virtualViewMatrix * clipPlane;
-                m_EnvComp.SetVirtualMartrix(virtualProjectMatrix * virtualViewMatrix);
-                ModifyProjectionMatrix(ref virtualProjectMatrix, clipPlane);
+                Matrix4x4 textureMatrix = new Matrix4x4(
+                    new Vector4(0.5f,0.0f,0.0f,0.5f),
+                    new Vector4(0.0f,0.5f,0.0f,0.5f),
+                    new Vector4(0.0f,0.0f,0.5f,0.5f),
+                    new Vector4(0.0f,0.0f,0.0f,1.0f)
+                    );
+                m_EnvComp.SetVirtualMartrix(virtualProjectMatrix * virtualViewMatrix * m_EnvComp.transform.localToWorldMatrix);
+                virtualProjectMatrix = renderCamera.CalculateObliqueMatrix(clipPlane);
+                //ModifyProjectionMatrix(ref virtualProjectMatrix, clipPlane);
             }
 
 
