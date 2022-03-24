@@ -17,6 +17,7 @@ namespace UnityEngine.Rendering.Universal
         MainLightShadowCasterPass m_MainLightShadowCasterPass;
         AdditionalLightsShadowCasterPass m_AdditionalLightsShadowCasterPass;
         RenderOpaquePass m_RenderOpaquePass;
+        RenderRefractPass m_RenderRefractPass;
         DrawObjectsPass m_RenderOpaqueForwardPass;
         DrawSkyboxPass m_DrawSkyboxPass;
         CopyDepthPass m_CopyDepthPass;
@@ -78,6 +79,7 @@ namespace UnityEngine.Rendering.Universal
             m_ColorGradingLutPass = new ColorGradingLutPass(RenderPassEvent.BeforeRenderingPrepasses, data.postProcessData);
             m_RenderOpaqueForwardPass = new DrawObjectsPass("Render Opaques", true, RenderPassEvent.BeforeRenderingOpaques, RenderQueueRange.opaque, data.opaqueLayerMask, m_DefaultStencilState, stencilData.stencilReference);
             m_RenderOpaquePass = new RenderOpaquePass(true, RenderPassEvent.BeforeRendering, RenderQueueRange.opaque, data.opaqueLayerMask, m_DefaultStencilState, stencilData.stencilReference);
+            m_RenderRefractPass = new RenderRefractPass(true, RenderPassEvent.BeforeRendering, RenderQueueRange.opaque, data.opaqueLayerMask, m_DefaultStencilState, stencilData.stencilReference);
             m_CopyDepthPass = new CopyDepthPass(RenderPassEvent.AfterRenderingSkybox, m_CopyDepthMaterial);
             m_DrawSkyboxPass = new DrawSkyboxPass(RenderPassEvent.BeforeRenderingSkybox);
             m_CopyColorPass = new CopyColorPass(RenderPassEvent.AfterRenderingSkybox, m_SamplingMaterial);
@@ -289,6 +291,7 @@ namespace UnityEngine.Rendering.Universal
             }
 
             EnqueuePass(m_RenderOpaquePass);
+            EnqueuePass(m_RenderRefractPass);
             EnqueuePass(m_RenderOpaqueForwardPass);
 
 #if POST_PROCESSING_STACK_2_0_0_OR_NEWER

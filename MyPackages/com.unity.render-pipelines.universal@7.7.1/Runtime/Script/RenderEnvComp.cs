@@ -27,4 +27,5 @@ public class RenderEnvComp : MonoBehaviour
             renderer.material.SetMatrix("virtualMatrix", m);
         }
     }
+
 }

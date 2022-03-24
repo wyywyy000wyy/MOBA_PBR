@@ -77,7 +77,7 @@ Shader "YSTech/Lit"
             Tags{"LightMode" = "UniversalForward"}
 
             Blend[_SrcBlend][_DstBlend]
-            ZWrite[_ZWrite]
+            ZWrite On//[_ZWrite]
             Cull[_Cull]
 
             HLSLPROGRAM

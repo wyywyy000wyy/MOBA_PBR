@@ -6,7 +6,7 @@ using UnityEngine.Rendering.Universal;
 namespace UnityEngine.Rendering.Universal.Internal
 {
 
-    public class RenderOpaquePass : ScriptableRenderPass
+    public class RenderRefractPass : ScriptableRenderPass
     {
         public static RenderEnvComp m_EnvComp;
         RenderTargetHandle m_TargetAttachment;
@@ -19,15 +19,15 @@ namespace UnityEngine.Rendering.Universal.Internal
         FilteringSettings m_FilteringSettings;
         RenderStateBlock m_RenderStateBlock;
         List<ShaderTagId> m_ShaderTagIdList = new List<ShaderTagId>();
-        string m_ProfilerTag = "RenderOpaquePass";
+        string m_ProfilerTag = "RenderRefractPass";
         ProfilingSampler m_ProfilingSampler;
         bool m_IsOpaque;
 
         static readonly int s_DrawObjectPassDataPropID = Shader.PropertyToID("_DrawObjectPassData");
 
-        public RenderOpaquePass(bool opaque, RenderPassEvent evt, RenderQueueRange renderQueueRange, LayerMask layerMask, StencilState stencilState, int stencilReference)
+        public RenderRefractPass(bool opaque, RenderPassEvent evt, RenderQueueRange renderQueueRange, LayerMask layerMask, StencilState stencilState, int stencilReference)
         {
-            m_TargetAttachment.Init("_RenderOpaquePassTexture");
+            m_TargetAttachment.Init("_RenderRefractPassTexture");
             m_EnvComp = GameObject.Find("Plane (5)")?.GetComponent<RenderEnvComp>();
             int dm = 1024;
             if (m_EnvComp != null)
@@ -120,25 +120,13 @@ namespace UnityEngine.Rendering.Universal.Internal
 
                 Camera virtualCamera = new Camera();
 
-                Vector3 planeUp = m_EnvComp.transform.up;
-                Vector3 cameraPos = renderCamera.transform.position;
-                Vector3 cameraUp = renderCamera.transform.up;
-                Vector3 view = mirrorPos - Vector3.Reflect(mirrorPos - cameraPos, planeUp);
+                Vector3 planeUp = -m_EnvComp.transform.up;
+                Vector3 view = renderCamera.transform.position;// mirrorPos - Vector3.Reflect(mirrorPos - cameraPos, planeUp);
 
-                Vector3 cameraTarget = cameraPos + renderCamera.transform.forward;
-
-
-
-                Vector3 viewTarget = mirrorPos - Vector3.Reflect(mirrorPos - cameraTarget, planeUp);
-                //{
-                //    //TMP
-                //    view = new Vector3(24.047180520002573f, -39.43195857764696f, 145.84470054505104f);
-                //    viewTarget = new Vector3(23.884495678809213f,-39.42903627610944f,144.8580267881285f);
-                //}
-
-                Vector3 viewForward = (viewTarget - view).normalized;
-                Vector3 viewUp = Vector3.Reflect(cameraUp, planeUp);
-                Vector3 viewRight = Vector3.Cross(viewUp, viewForward);
+                Vector3 viewForward = renderCamera.transform.forward;// (viewTarget - view).normalized;
+                Vector3 viewUp = renderCamera.transform.up;// Vector3.Reflect(cameraUp, planeUp);
+                Vector3 viewTarget = view + viewForward;
+                Vector3 viewRight = renderCamera.transform.right;// Vector3.Cross(viewUp, viewForward);+
 
                 Vector4 u = viewRight;// renderCamera.transform.right;
                 u.w = -Vector3.Dot(u, view);
@@ -147,31 +135,11 @@ namespace UnityEngine.Rendering.Universal.Internal
                 Vector4 n = -viewForward;// renderCamera.transform.forward;
                 n.w = -Vector3.Dot(n, view);
 
-                virtualViewMatrix.SetRow(0, u);
-                virtualViewMatrix.SetRow(1, v);
-                virtualViewMatrix.SetRow(2, n);
-                virtualViewMatrix.SetRow(3, new Vector4(0, 0, 0, 1));
+                //virtualViewMatrix.SetRow(0, u);
+                //virtualViewMatrix.SetRow(1, v);
+                //virtualViewMatrix.SetRow(2, n);
+                //virtualViewMatrix.SetRow(3, new Vector4(0, 0, 0, 1));
 
-                //VirtualCamera.transform.position = view;
-                //VirtualCamera.transform.up = viewUp;
-                //VirtualCamera.transform.right = viewRight;
-                //VirtualCamera.transform.forward = viewForward;
-
-                //VirtualCamera.projectionMatrix = m_VirtualCamera.projectionMatrix;
-                //VirtualCamera.worldToCameraMatrix = virtualViewMatrix;
-
-
-                //virtualCamera.projectionMatrix = m_VirtualCamera.projectionMatrix;
-                //virtualCamera.worldToCameraMatrix = virtualViewMatrix;
-
-                Matrix4x4 virtualCameraWorldMatrix = new Matrix4x4(
-                    viewRight,
-                    viewUp,
-                    viewForward,
-                    new Vector4(view.x, view.y, view.z, 1)
-                    );
-
-                Plane mirrorPlane = new Plane(planeUp, mirrorPos);
                 Vector4 clipPlane;// = new Vector4(mirrorPlane.normal.x, mirrorPlane.normal.y, mirrorPlane.normal.z, mirrorPlane.distance);
                 {
                     Vector3 virtualCameraSpaceNormal = virtualViewMatrix.MultiplyVector(planeUp);
@@ -179,26 +147,11 @@ namespace UnityEngine.Rendering.Universal.Internal
 
                     Plane plane = new Plane(virtualCameraSpaceNormal, virtualCameraSpacePos);
 
-
-                    Matrix4x4 normalMatrix = virtualCameraWorldMatrix.transpose;
-                    Vector3 mn = normalMatrix.MultiplyVector(mirrorPlane.normal).normalized;
-                    Vector3 point = mirrorPlane.normal * (-mirrorPlane.distance);
-                    float constant = -Vector3.Dot(point, mn);
-                    //clipPlane = new Vector4(mn.x, mn.y, mn.z, constant);
-
                     clipPlane = new Vector4(plane.normal.x, plane.normal.y, plane.normal.z, plane.distance);
 
                 }
 
-
-                //clipPlane = virtualViewMatrix * clipPlane;
-                Matrix4x4 textureMatrix = new Matrix4x4(
-                    new Vector4(0.5f, 0.0f, 0.0f, 0.5f),
-                    new Vector4(0.0f, 0.5f, 0.0f, 0.5f),
-                    new Vector4(0.0f, 0.0f, 0.5f, 0.5f),
-                    new Vector4(0.0f, 0.0f, 0.0f, 1.0f)
-                    );
-                m_EnvComp.SetVirtualMartrix(virtualProjectMatrix * virtualViewMatrix * m_EnvComp.transform.localToWorldMatrix);
+                //m_EnvComp.SetVirtualMartrix(virtualProjectMatrix * virtualViewMatrix * m_EnvComp.transform.localToWorldMatrix);
                 virtualProjectMatrix = renderCamera.CalculateObliqueMatrix(clipPlane);
                 //ModifyProjectionMatrix(ref virtualProjectMatrix, clipPlane);
             }
@@ -222,19 +175,6 @@ namespace UnityEngine.Rendering.Universal.Internal
 
             CommandBuffer cmd = CommandBufferPool.Get(m_ProfilerTag);
 
-            /// <summary>
-
-            // cmd.SetGlobalMatrix(ShaderPropertyId.viewMatrix, viewMatrix);
-            // cmd.SetGlobalMatrix(ShaderPropertyId.projectionMatrix, projectionMatrix);
-            // cmd.SetGlobalMatrix(ShaderPropertyId.viewAndProjectionMatrix, viewAndProjectionMatrix);
-
-            // cmd.SetGlobalVector(ShaderPropertyId.worldSpaceCameraPos, camera.transform.position);
-            // cmd.SetGlobalVector(ShaderPropertyId.screenParams, new Vector4(cameraWidth, cameraHeight, 1.0f + 1.0f / cameraWidth, 1.0f + 1.0f / cameraHeight));
-            // cmd.SetGlobalVector(ShaderPropertyId.scaledScreenParams, new Vector4(scaledCameraWidth, scaledCameraHeight, 1.0f + 1.0f / scaledCameraWidth, 1.0f + 1.0f / scaledCameraHeight));
-            // cmd.SetGlobalVector(ShaderPropertyId.zBufferParams, zBufferParams);
-            // cmd.SetGlobalVector(ShaderPropertyId.orthoParams, orthoParams);
-
-            // RenderingUtils.SetViewAndProjectionMatrices(cmd, virtualViewMatrix, virtualProjectMatrix, false);
 
             cmd.SetViewProjectionMatrices(virtualViewMatrix, virtualProjectMatrix);
 
@@ -264,9 +204,6 @@ namespace UnityEngine.Rendering.Universal.Internal
                 context.DrawRenderers(renderingData.cullResults, ref drawSettings, ref filterSettings, ref m_RenderStateBlock);
 
                 context.DrawSkybox(renderingData.cameraData.camera);
-                // Render objects that did not match any shader pass with error shader
-                // RenderingUtils.RenderObjectsWithError(context, ref renderingData.cullResults, camera, filterSettings, SortingCriteria.None);
-
             }
             // RenderingUtils.SetViewAndProjectionMatrices(cmd, cameraData.GetViewMatrix(), cameraData.GetGPUProjectionMatrix(), false);
             cmd.ClearRenderTarget(true, false, Color.black);
