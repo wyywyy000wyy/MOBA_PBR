@@ -61,6 +61,11 @@ namespace UnityEngine.Rendering.Universal.Internal
             ConfigureTarget(m_TargetAttachment.Identifier());
         }
 
+        //public override void FrameCleanup(CommandBuffer cmd)
+        //{
+        //    cmd.ReleaseTemporaryRT(m_TargetAttachment.id);
+        //}
+
         void ModifyProjectionMatrix(ref Matrix4x4 project, Vector4 clipPlane)
         {
             Matrix4x4 matrix = project;

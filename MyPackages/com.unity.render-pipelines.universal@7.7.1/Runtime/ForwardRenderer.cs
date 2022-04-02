@@ -17,6 +17,7 @@ namespace UnityEngine.Rendering.Universal
         MainLightShadowCasterPass m_MainLightShadowCasterPass;
         AdditionalLightsShadowCasterPass m_AdditionalLightsShadowCasterPass;
         RenderOpaquePass m_RenderOpaquePass;
+        LightDepthOnlyPass m_LightDepthOnlyPass;
         RenderRefractPass m_RenderRefractPass;
         DrawObjectsPass m_RenderOpaqueForwardPass;
         DrawSkyboxPass m_DrawSkyboxPass;
@@ -78,6 +79,7 @@ namespace UnityEngine.Rendering.Universal
             m_DepthPrepass = new DepthOnlyPass(RenderPassEvent.BeforeRenderingPrepasses, RenderQueueRange.opaque, data.opaqueLayerMask);
             m_ColorGradingLutPass = new ColorGradingLutPass(RenderPassEvent.BeforeRenderingPrepasses, data.postProcessData);
             m_RenderOpaqueForwardPass = new DrawObjectsPass("Render Opaques", true, RenderPassEvent.BeforeRenderingOpaques, RenderQueueRange.opaque, data.opaqueLayerMask, m_DefaultStencilState, stencilData.stencilReference);
+            m_LightDepthOnlyPass = new LightDepthOnlyPass(RenderPassEvent.BeforeRendering, RenderQueueRange.opaque, data.opaqueLayerMask, m_DefaultStencilState, stencilData.stencilReference);
             m_RenderOpaquePass = new RenderOpaquePass(true, RenderPassEvent.BeforeRendering, RenderQueueRange.opaque, data.opaqueLayerMask, m_DefaultStencilState, stencilData.stencilReference);
             m_RenderRefractPass = new RenderRefractPass(true, RenderPassEvent.BeforeRendering, RenderQueueRange.opaque, data.opaqueLayerMask, m_DefaultStencilState, stencilData.stencilReference);
             m_CopyDepthPass = new CopyDepthPass(RenderPassEvent.AfterRenderingSkybox, m_CopyDepthMaterial);
@@ -284,14 +286,19 @@ namespace UnityEngine.Rendering.Universal
                 EnqueuePass(m_DepthPrepass);
             }
 
+            //m_LightDepthOnlyPass.Setup(cameraTargetDescriptor, m_DepthTexture);
+            //EnqueuePass(m_LightDepthOnlyPass);
+
+
             if (generateColorGradingLUT)
             {
                 m_ColorGradingLutPass.Setup(m_ColorGradingLut);
                 EnqueuePass(m_ColorGradingLutPass);
             }
 
-            EnqueuePass(m_RenderOpaquePass);
-            EnqueuePass(m_RenderRefractPass);
+            EnqueuePass(m_LightDepthOnlyPass);
+            //EnqueuePass(m_RenderOpaquePass);
+            //EnqueuePass(m_RenderRefractPass);
             EnqueuePass(m_RenderOpaqueForwardPass);
 
 #if POST_PROCESSING_STACK_2_0_0_OR_NEWER
