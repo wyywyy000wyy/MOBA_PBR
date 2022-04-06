@@ -26,6 +26,7 @@ namespace UnityEngine.Rendering.Universal.Internal
         List<ShaderTagId> m_ShaderTagIdList = new List<ShaderTagId>();
 
         RenderTargetHandle m_TargetAttachment;
+        RenderTexture m_AdditionalLightsShadowmapTexture;
         static readonly int s_DrawObjectPassDataPropID = Shader.PropertyToID("_DrawObjectPassData");
 
         /// <summary>
@@ -41,7 +42,7 @@ namespace UnityEngine.Rendering.Universal.Internal
             m_Material = new Material(Shader.Find("YSTech/RectifiedShadow"));
             m_FilteringSettings = new FilteringSettings(renderQueueRange, layerMask);
             renderPassEvent = evt;
-            m_RenderDescroptor = new RenderTextureDescriptor(1024, 1024, RenderTextureFormat.ARGB32, 32);
+            m_RenderDescroptor = new RenderTextureDescriptor(1024, 1024, RenderTextureFormat.RFloat, 32);
             m_RenderStateBlock = new RenderStateBlock(RenderStateMask.Nothing);
             if (stencilState.enabled)
             {
@@ -53,11 +54,26 @@ namespace UnityEngine.Rendering.Universal.Internal
 
         public override void Configure(CommandBuffer cmd, RenderTextureDescriptor cameraTextureDescriptor)
         {
+            m_AdditionalLightsShadowmapTexture = ShadowUtils.GetTemporaryShadowTexture(1024, 1024, 32);
+
             //cmd.GetTemporaryRT(m_TargetAttachment.id, m_RenderDescroptor, FilterMode.Point);
-            cmd.GetTemporaryRT(m_TargetAttachment.id, m_RenderDescroptor);
+            cmd.GetTemporaryRT(m_TargetAttachment.id, m_RenderDescroptor, FilterMode.Point);
+            //ConfigureTarget(new RenderTargetIdentifier(m_AdditionalLightsShadowmapTexture));
             ConfigureTarget(m_TargetAttachment.Identifier());
-            //ConfigureClear(ClearFlag.All, Color.black);
+            ConfigureClear(ClearFlag.All, Color.black);
         }
+
+        //public override void FrameCleanup(CommandBuffer cmd)
+        //{
+        //    if (cmd == null)
+        //        throw new ArgumentNullException("cmd");
+
+        //    if (m_AdditionalLightsShadowmapTexture)
+        //    {
+        //        RenderTexture.ReleaseTemporary(m_AdditionalLightsShadowmapTexture);
+        //        m_AdditionalLightsShadowmapTexture = null;
+        //    }
+        //}
 
         /// <inheritdoc/>
         public override void Execute(ScriptableRenderContext context, ref RenderingData renderingData)
@@ -107,7 +123,7 @@ namespace UnityEngine.Rendering.Universal.Internal
 
                 var sortFlags = renderingData.cameraData.defaultOpaqueSortFlags;
                 var drawSettings = CreateDrawingSettings(m_ShaderTagIdList, ref renderingData, sortFlags);
-                //drawSettings.overrideMaterial = m_Material;
+                drawSettings.overrideMaterial = m_Material;
                 drawSettings.perObjectData = PerObjectData.None;
 
                 Camera camera = cameraData.camera;
@@ -127,8 +143,11 @@ namespace UnityEngine.Rendering.Universal.Internal
                 context.DrawRenderers(renderingData.cullResults, ref drawSettings, ref filterSettings, ref m_RenderStateBlock);
 
             }
+            //cmd.SetGlobalTexture("_RectifiedShadowTexture", m_AdditionalLightsShadowmapTexture);
             cmd.ClearRenderTarget(true, false, Color.black);
             cmd.SetViewProjectionMatrices(cameraData.GetViewMatrix(), cameraData.GetGPUProjectionMatrix());
+
+            //cmd.SetGlobalTexture("_RectifiedShadowTexture", m_AdditionalLightsShadowmapTexture);
 
             context.ExecuteCommandBuffer(cmd);
             CommandBufferPool.Release(cmd);
