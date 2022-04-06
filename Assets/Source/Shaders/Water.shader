@@ -58,6 +58,7 @@
             float4 _MainTex_ST;
             sampler2D _RenderOpaquePassTexture;
             sampler2D _RenderRefractPassTexture;
+            sampler2D _RectifiedShadowTexture;
 
             samplerCUBE _Cubemap;
 
@@ -156,7 +157,9 @@
                 //half4 col = half4(waterColor * _WaterColor, reflectance);
                 half4 col =  half4(_WaterColor, 1)* waterColor;// half4(waterColor, 1);
 
-                //col = tex2D(_RenderOpaquePassTexture, i.uvMirror);
+                float4 tc = tex2D(_RectifiedShadowTexture, 1 - i.uv);
+                tc.a = 1;
+                col = half4(tc.r, tc.r, tc.r, 1);
                 //col = refractColor;
                 return col;
             }
