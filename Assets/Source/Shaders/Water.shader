@@ -16,7 +16,7 @@
     {
         Tags {"Queue" = "Transparent" "RenderType" = "Transparent" "RenderPipeline" = "UniversalPipeline" }
         LOD 100
-        Blend SrcAlpha OneMinusSrcAlpha
+        //Blend SrcAlpha OneMinusSrcAlpha
         ZWrite Off
 
 
@@ -49,6 +49,7 @@
                 float3 viewDirectionWS : TEXCOORD3;
                 float4 uvMirror : TEXCOORD4;
                 float4 uvRefract : TEXCOORD5;
+                float4 uvShadow : TEXCOORD6;
             };
 
 
@@ -57,11 +58,13 @@
             sampler2D _MainTex;
             float4 _MainTex_ST;
             sampler2D _RenderOpaquePassTexture;
+            sampler2D _RectifiedShadowTexture;
             sampler2D _RenderRefractPassTexture;
 
             samplerCUBE _Cubemap;
 
             float4x4 virtualMatrix;
+            float4x4 _G_MAP_LIGHT_SHADOW_MATRIX;
             float _flowSpeed;
             float4 _flowDir;
             float3 _WaterColor;
@@ -82,6 +85,9 @@
                 float4 mirrorPos = mul(virtualMatrix, v.vertex);
                 o.uvMirror = mirrorPos;
                 o.uvRefract = o.positionCS;
+
+                float4 uvShadow = mul(_G_MAP_LIGHT_SHADOW_MATRIX, o.positionWS);
+                o.uvShadow.xy = (uvShadow.xy + 1) * 0.5;
                 //o.uvMirror.xy = (mirrorPos.xy / mirrorPos.w + 1) * 0.5;
                 return o;
             }
@@ -107,56 +113,60 @@
 
                 //float2 uv = (i.positionWS.xz + (_flowDir.xz * _flowSpeed * _Time.x)) * 0.1;
 
-                float4 noise = getNoise(i.positionWS.xz * 0.5, _Time.x * _flowSpeed);
+                //float4 noise = getNoise(i.positionWS.xz * 0.5, _Time.x * _flowSpeed);
 
-                //float3 normal = tex2D(_MainTex, uv).rgb;
-                //float3 normal = normalize(noise.xzy * float3(1.5, 1.0, 1.5));
-                float3 normal = normalize(noise.xzy);// *float3(1.5, 1.0, 1.5));
-
-
-
-                Light light = GetMainLight();
-
-                float3 viewDirection = SafeNormalize(-i.viewDirectionWS);
-                float3 eyeDirection = SafeNormalize(i.viewDirectionWS);
-
-                float3 reflection = normalize(reflect(-viewDirection, normal));
-                float specdirection = max(0, dot(light.direction, reflection));
-                float3 specularLight = pow(specdirection, _SpecularShiny) * light.color * _Specular;
-                float3 diffuseLight = max(dot(light.direction, normal), 0.0) * light.color * _Diffuse;
+                ////float3 normal = tex2D(_MainTex, uv).rgb;
+                ////float3 normal = normalize(noise.xzy * float3(1.5, 1.0, 1.5));
+                //float3 normal = normalize(noise.xzy);// *float3(1.5, 1.0, 1.5));
 
 
 
-                float NoL = saturate(dot(normal, light.direction));
-                float theta = max(0.0, dot(eyeDirection, normal));
-                float F0 = 0.2;
-                float reflectance = F0 + (1 - F0) * pow(1 - theta, 5.0);
+                //Light light = GetMainLight();
 
-                half4 refColor = tex2D(_RenderOpaquePassTexture, (i.uvMirror.xy / i.uvMirror.w + 1) * 0.5);
-                //half4 refractColor = tex2D(_RenderRefractPassTexture, (i.positionCS.xy / i.positionCS.w + 1) * 0.5);
-                float3 uvr = (i.uvRefract.xyz / i.uvRefract.w + 1) * 0.5;
+                //float3 viewDirection = SafeNormalize(-i.viewDirectionWS);
+                //float3 eyeDirection = SafeNormalize(i.viewDirectionWS);
 
-                uvr.xy = uvr.xy + uvr.z * normal.xz * 0.05;
-                uvr.y = 1 - uvr.y;
-
-                half4 refractColor = tex2D(_RenderRefractPassTexture, uvr.xy);
-                //half4 refColor = textureProjExternal(_RenderOpaquePassTexture, i.uvMirror);
+                //float3 reflection = normalize(reflect(-viewDirection, normal));
+                //float specdirection = max(0, dot(light.direction, reflection));
+                //float3 specularLight = pow(specdirection, _SpecularShiny) * light.color * _Specular;
+                //float3 diffuseLight = max(dot(light.direction, normal), 0.0) * light.color * _Diffuse;
 
 
-                float3 scatter = max(0.0, dot(normal, eyeDirection)) *_WaterColor;
-                //float3 reflectionSample = half3(1, 1, 1);
-                float4 reflectionSample = refColor;// texCUBE(_Cubemap, eyeDirection).rgb;
-                float3 diffuseColor = _WaterColor * diffuseLight;// +scatter;
-                //diffuseColor = normal;
-                //float3 waterColor = lerp(diffuseColor, half3(0.1f, 0.1f, 0.1f) + reflectionSample * 0.9 + reflectionSample * specularLight, reflectance);
-                //float3 waterColor = lerp(diffuseColor, reflectionSample, reflectance);
-                float4 waterColor = lerp(refractColor, refColor, reflectance);
 
-                //float3 waterColor = diffuseLight * _WaterColor + reflectionSample * specularLight;
-                //half4 col = half4(waterColor * _WaterColor, reflectance);
-                half4 col =  half4(_WaterColor, 1)* waterColor;// half4(waterColor, 1);
+                //float NoL = saturate(dot(normal, light.direction));
+                //float theta = max(0.0, dot(eyeDirection, normal));
+                //float F0 = 0.2;
+                //float reflectance = F0 + (1 - F0) * pow(1 - theta, 5.0);
 
-                //col = tex2D(_RenderOpaquePassTexture, i.uvMirror);
+                //half4 refColor = tex2D(_RenderOpaquePassTexture, (i.uvMirror.xy / i.uvMirror.w + 1) * 0.5);
+                ////half4 refractColor = tex2D(_RenderRefractPassTexture, (i.positionCS.xy / i.positionCS.w + 1) * 0.5);
+                //float3 uvr = (i.uvRefract.xyz / i.uvRefract.w + 1) * 0.5;
+
+                //uvr.xy = uvr.xy + uvr.z * normal.xz * 0.05;
+                //uvr.y = 1 - uvr.y;
+
+                //half4 refractColor = tex2D(_RenderRefractPassTexture, uvr.xy);
+                ////half4 refColor = textureProjExternal(_RenderOpaquePassTexture, i.uvMirror);
+
+
+                //float3 scatter = max(0.0, dot(normal, eyeDirection)) *_WaterColor;
+                ////float3 reflectionSample = half3(1, 1, 1);
+                //float4 reflectionSample = refColor;// texCUBE(_Cubemap, eyeDirection).rgb;
+                //float3 diffuseColor = _WaterColor * diffuseLight;// +scatter;
+                ////diffuseColor = normal;
+                ////float3 waterColor = lerp(diffuseColor, half3(0.1f, 0.1f, 0.1f) + reflectionSample * 0.9 + reflectionSample * specularLight, reflectance);
+                ////float3 waterColor = lerp(diffuseColor, reflectionSample, reflectance);
+                //float4 waterColor = lerp(refractColor, refColor, reflectance);
+
+                ////float3 waterColor = diffuseLight * _WaterColor + reflectionSample * specularLight;
+                ////half4 col = half4(waterColor * _WaterColor, reflectance);
+                //half4 col =  half4(_WaterColor, 1)* waterColor;// half4(waterColor, 1);
+                float2 uv = i.uv;
+                //uv.x = 1 - uv.x;
+                half4 col = tex2D(_RectifiedShadowTexture, i.uvShadow.xy);
+                col.xyz = col.xxx;
+                col.a = 1;
+                //col.b = 1;
                 //col = refractColor;
                 return col;
             }
