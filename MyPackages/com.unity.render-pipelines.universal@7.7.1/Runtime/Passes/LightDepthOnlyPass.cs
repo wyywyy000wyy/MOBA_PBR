@@ -13,6 +13,8 @@ namespace UnityEngine.Rendering.Universal.Internal
     {
         int kDepthBufferBits = 32;
 
+        int treeDem = 1024;
+
         RenderTextureDescriptor m_RenderDescroptor;
 
         Material m_Material;
@@ -24,6 +26,8 @@ namespace UnityEngine.Rendering.Universal.Internal
         ProfilingSampler m_ProfilingSampler = new ProfilingSampler(m_ProfilerTag);
         ShaderTagId m_ShaderTagId = new ShaderTagId("DepthOnly");
         List<ShaderTagId> m_ShaderTagIdList = new List<ShaderTagId>();
+
+        RenderTexture rt;
 
         RenderTargetHandle m_TargetAttachment;
         static readonly int s_DrawObjectPassDataPropID = Shader.PropertyToID("_DrawObjectPassData");
@@ -37,11 +41,12 @@ namespace UnityEngine.Rendering.Universal.Internal
             m_ShaderTagIdList.Add(new ShaderTagId("LightweightForward"));
             m_ShaderTagIdList.Add(new ShaderTagId("SRPDefaultUnlit"));
 
-            m_TargetAttachment.Init("_RectifiedShadowTexture");
+            //m_TargetAttachment.Init("_RectifiedShadowTexture");
             m_Material = new Material(Shader.Find("YSTech/RectifiedShadow"));
+            m_Material.SetColor("_Color", Color.black);
             m_FilteringSettings = new FilteringSettings(renderQueueRange, layerMask);
             renderPassEvent = evt;
-            m_RenderDescroptor = new RenderTextureDescriptor(1024, 1024, RenderTextureFormat.ARGB32, 32);
+            m_RenderDescroptor = new RenderTextureDescriptor(treeDem, treeDem, RenderTextureFormat.ARGB32, 32);
             m_RenderStateBlock = new RenderStateBlock(RenderStateMask.Nothing);
             if (stencilState.enabled)
             {
@@ -49,13 +54,16 @@ namespace UnityEngine.Rendering.Universal.Internal
                 m_RenderStateBlock.mask = RenderStateMask.Stencil;
                 m_RenderStateBlock.stencilState = stencilState;
             }
+            rt = new RenderTexture(m_RenderDescroptor);
+
         }
 
         public override void Configure(CommandBuffer cmd, RenderTextureDescriptor cameraTextureDescriptor)
         {
             //cmd.GetTemporaryRT(m_TargetAttachment.id, m_RenderDescroptor, FilterMode.Point);
-            cmd.GetTemporaryRT(m_TargetAttachment.id, m_RenderDescroptor);
-            ConfigureTarget(m_TargetAttachment.Identifier());
+            //cmd.GetTemporaryRT(m_TargetAttachment.id, m_RenderDescroptor, FilterMode.Point);
+            //ConfigureTarget(m_TargetAttachment.Identifier());
+            ConfigureTarget(new RenderTargetIdentifier(rt));
             //ConfigureClear(ClearFlag.All, Color.black);
         }
 
@@ -81,6 +89,7 @@ namespace UnityEngine.Rendering.Universal.Internal
             n.w = -Vector3.Dot(n, lightTrans.position);
 
             Matrix4x4 virtualViewMatrix = new Matrix4x4();
+            Matrix4x4 virtualProjMatrix = new Matrix4x4();
 
             virtualViewMatrix.SetRow(0, u);
             virtualViewMatrix.SetRow(1, v);
@@ -89,13 +98,27 @@ namespace UnityEngine.Rendering.Universal.Internal
 
             CommandBuffer cmd = CommandBufferPool.Get(m_ProfilerTag);
             ref CameraData cameraData = ref renderingData.cameraData;
+
+            //renderingData.cullResults.ComputeDirectionalShadowMatricesAndCullingPrimitives
+
+            //Matrix4x4 projectMat = Matrix4x4.Ortho()
+
             //m_EnvComp.SetVirtualMartrix(virtualProjectMatrix * virtualViewMatrix * m_EnvComp.transform.localToWorldMatrix);
             //cmd.SetViewProjectionMatrices(virtualViewMatrix, cameraData.GetGPUProjectionMatrix());
-            cmd.SetViewProjectionMatrices(cameraData.GetViewMatrix(), cameraData.GetGPUProjectionMatrix());
 
 
             using (new ProfilingScope(cmd, m_ProfilingSampler))
             {
+                CullingResults cullResults = renderingData.cullResults;
+
+                ShadowSplitData splitData;
+                bool success = cullResults.ComputeDirectionalShadowMatricesAndCullingPrimitives(0,
+                    0, 1, new Vector3(1,0,0), 2048, 0f, out virtualViewMatrix, out virtualProjMatrix,
+                    out splitData);
+
+                cmd.SetViewProjectionMatrices(virtualViewMatrix, virtualProjMatrix);
+                cmd.SetGlobalMatrix("_G_MAP_LIGHT_SHADOW_MATRIX", virtualViewMatrix * virtualProjMatrix);
+
                 cmd.ClearRenderTarget(true, true, Color.black);
                 Vector4 drawObjectPassData = new Vector4(0.0f, 0.0f, 0.0f, true ? 1.0f : 0.0f);
                 cmd.SetGlobalVector(s_DrawObjectPassDataPropID, drawObjectPassData);
@@ -107,8 +130,8 @@ namespace UnityEngine.Rendering.Universal.Internal
 
                 var sortFlags = renderingData.cameraData.defaultOpaqueSortFlags;
                 var drawSettings = CreateDrawingSettings(m_ShaderTagIdList, ref renderingData, sortFlags);
-                //drawSettings.overrideMaterial = m_Material;
-                drawSettings.perObjectData = PerObjectData.None;
+                drawSettings.overrideMaterial = m_Material;
+                //drawSettings.perObjectData = PerObjectData.None;
 
                 Camera camera = cameraData.camera;
                 if (cameraData.isStereoEnabled)
@@ -125,13 +148,31 @@ namespace UnityEngine.Rendering.Universal.Internal
                 }
 #endif
                 context.DrawRenderers(renderingData.cullResults, ref drawSettings, ref filterSettings, ref m_RenderStateBlock);
+                //context.DrawSkybox(renderingData.cameraData.camera);
 
             }
-            cmd.ClearRenderTarget(true, false, Color.black);
+            cmd.SetGlobalTexture("_RectifiedShadowTexture", rt.depthBuffer);
+            //cmd.ClearRenderTarget(true, false, Color.black);
             cmd.SetViewProjectionMatrices(cameraData.GetViewMatrix(), cameraData.GetGPUProjectionMatrix());
 
             context.ExecuteCommandBuffer(cmd);
             CommandBufferPool.Release(cmd);
+
+            context.Submit();
+
+            var pre = RenderTexture.active;
+
+            RenderTexture.active = rt;
+
+            for (int i = 0; i < treeDem; ++i)
+            {
+                for(int j = 0; j < treeDem; ++j)
+                {
+                    //rt.get
+                }
+            }
+
+            RenderTexture.active = pre;
         }
 
         /// <inheritdoc/>

@@ -266,7 +266,7 @@ namespace UnityEngine.Rendering.Universal
 
             ProfilingSampler sampler = (asset.debugLevel >= PipelineDebugLevel.Profiling) ? new ProfilingSampler(camera.name): _CameraProfilingSampler;
             CommandBuffer cmd = CommandBufferPool.Get(sampler.name);
-            using (new ProfilingScope(cmd, sampler))
+            //using (new ProfilingScope(cmd, sampler))
             {
                 renderer.Clear(cameraData.renderType);
                 renderer.SetupCullingParameters(ref cullingParameters, ref cameraData);

@@ -37,6 +37,7 @@ namespace UnityEngine.Rendering.Universal
             "Universal Render Pipeline/Nature/SpeedTree7",
             "Universal Render Pipeline/Nature/SpeedTree7 Billboard",
             "Universal Render Pipeline/Nature/SpeedTree8",
+            "YSTech/RectifiedShadow",
         };
 
         public static string GetShaderPath(ShaderPathID id)
