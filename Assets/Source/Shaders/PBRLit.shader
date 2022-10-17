@@ -130,5 +130,5 @@ Shader "YSTech/Lit"
         }
     }
     FallBack "Hidden/Universal Render Pipeline/FallbackError"
-    CustomEditor "UnityEditor.Rendering.Universal.ShaderGUI.LitShader"
+    //CustomEditor "UnityEditor.Rendering.Universal.ShaderGUI.LitShader"
 }

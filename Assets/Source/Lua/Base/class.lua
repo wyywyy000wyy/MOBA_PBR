@@ -100,7 +100,7 @@
 
 --     cls.__newindex = function(t, key, value)
 --         if cls.__cls_data[key] and cls.__cls_data[key] ~= type(value) then
---             print(string.format("类型不匹配: %s 的类型是 %s", key, cls.__cls_data[key]))
+--             logger.print(string.format("类型不匹配: %s 的类型是 %s", key, cls.__cls_data[key]))
 --             return
 --         end
 --         t.__data[key] = value
@@ -114,7 +114,7 @@
 -- --     name = string,
 -- --     age = int,
 -- --     foo = function()
--- --         print('from A', name, age)
+-- --         logger.print('from A', name, age)
 -- --     end,
 -- -- }
 
@@ -122,17 +122,17 @@
 -- --     class {
 -- --     __super = A,
 -- --     foo = function()
--- --         print('from B', name, age)
+-- --         logger.print('from B', name, age)
 -- --     end
 -- -- }
--- -- -- print(DT(A))
+-- -- -- logger.print(DT(A))
 
 -- -- local a = A()
--- -- -- print(DT(A))
+-- -- -- logger.print(DT(A))
 -- -- a.name = 'hanmeimei'
 -- -- a.age = 17
 -- -- a.foo()
--- -- -- print(DT(a))
+-- -- -- logger.print(DT(a))
 
 -- -- local b = B()
 -- -- b:foo()

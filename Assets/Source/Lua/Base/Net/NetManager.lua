@@ -4,6 +4,7 @@ local pb = require 'pb'
 local protoc = require 'protoc'
 local proto = require("Base/Net/Proto")
 local WarNet 
+require("Base/Net/MsgProtocol")
 require("Base/Net/MsgHandler")
 
 NetManager = {
@@ -17,16 +18,13 @@ NetManager = {
 function NetManager:Init()
     WarNet = U.WarNet.instance
     WarNet.onNetEvent = function (NetEventType)
-        ELOG("onNetEvent", NetEventType)
         NetManager:SendMsg(Protocol.C2S_Login, { username = "tt", password = "7526" } )
     end
 
     -- WarNet = U.WarNet.instance
     WarNet.onReceivePacketEvent = function (packet)
-        ELOG("onReceivePacketEvent", packet)
         local msgType = MsgHandler.pro[packet.header.opCode]
         local msg = pb.decode(msgType, packet.body)
-        ELOG("onReceivePacketEvent msg", DT(msg))
     end
 
     protoc:load(proto)
@@ -40,8 +38,14 @@ end
 function NetManager:SendMsg(opCode, msg)
     local msgType = MsgHandler.pro[opCode]
     local bytes = pb.encode(msgType, msg)
-    ELOG("SendMsg", msgType)
-    ELOG("bytes", bytes and #bytes,type(bytes), bytes)
     local packet = U.Packet(opCode, bytes)
-    WarNet:Send(packet)
+    ELOG("Send", DT(msg))
+
+    ELOG("SendMsg", type(bytes), string.len(bytes))
+
+    local dmsg = pb.decode(msgType, bytes)
+
+    ELOG("dmsg", DT(dmsg))
+
+    -- WarNet:Send(packet)
 end

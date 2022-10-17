@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
+  m_Name: testmat
+  m_EditorClassIdentifier: 
+  m_GroupName: testmat
+  m_Data:
+    m_SerializedData: []
+  m_GUID: 36a026042ca72a64a93e832a3ba935b3
+  m_SerializeEntries:
+  - m_GUID: ae494b226b77fd94683b3b89bcab8681
+    m_Address: Assets/DrawTest/TMat.mat
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  m_ReadOnly: 0
+  m_Settings: {fileID: 11400000, guid: 60555cbe3ba7f514399526c6917e6fd5, type: 2}
+  m_SchemaSet:
+    m_Schemas:
+    - {fileID: 11400000, guid: 48e4bf5e4fa00af468808a8cc28caca4, type: 2}
+    - {fileID: 11400000, guid: ba43e27181d3eb741874f44734b80e46, type: 2}

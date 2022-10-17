@@ -18,6 +18,7 @@ message C2S_Login
 {
 	string username = 1;
 	string password = 2;
+	int32 tt = 3;
 }
 
 message S2C_Login

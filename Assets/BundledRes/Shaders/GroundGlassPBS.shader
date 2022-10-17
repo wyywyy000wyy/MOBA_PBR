@@ -10,10 +10,13 @@
 		_AOTex("AO Tex", 2D) = "white" {}
 		_LightInstense("Light Instense", Float) = 1
 		_Metallic("Metallic", Range(0, 1)) = 0.04
+		[MaterialToggle(_SPEC_ON)] _ToggleSpec("Enable Specular", Float) = 1
+		[MaterialToggle(_DIFFUSE_ON)] _ToggleDiffuse("Enable Diffuse", Float) = 1
+		//[Enum(Specular, 0, Diffuse, 1)] _LightMode("LightMode", Float) = 0  //声明外部控制开关
     }
     SubShader
     {
-        Tags {"LightMode" = "ForwardBase" "RenderType"="Opaque" }
+        Tags {"LightMode" = "ForwardBase" "RenderType"="Geometry" "Queue"="Geometry"}
         LOD 100
 
         Pass
@@ -25,6 +28,11 @@
 
             #include "UnityCG.cginc"
 			#include "UnityLightingCommon.cginc" // for _LightColor0
+
+			#pragma multi_compile _SPEC_OFF _SPEC_ON
+			#pragma multi_compile _DIFFUSE_OFF _DIFFUSE_ON
+			
+
 
             struct appdata
             {
@@ -159,17 +167,19 @@
 				float D = (D_GGX(a2, VoH));
 				float Vis = (Vis_SmithJoint(a2, NoV, NoL));
 				float3 F = F_Schlick(SpecularColor, VoH);
-
 				float3 Specular = F * (D * Vis) *NoL;
 				float3 BaseColor = col.rgb;
 				float3 Diffuse = Diffuse_Lambert(BaseColor - BaseColor * Metallic) *NoL;
 
 				float lightIns = /*AO * */_LightInstense;
+#if !_SPEC_ON
+				Specular = 0;
+#endif
+#if !_DIFFUSE_ON
+				Diffuse = 0;
+#endif
+				
 				col.rgb = (Specular + Diffuse)* lightIns;
-				//col.rgb = (/*Specular + */Diffuse)* lightIns;
-				//col.rgb = (Specular + Diffuse) * lightIns;
-				//col.rgb = NoL;
-				//col.rgb = Specular * lightIns;
 
                 return col;
             }

@@ -19,7 +19,7 @@ Shader "Custom/NoiseGpuVerticesAnimation" {
 	}
 
 		SubShader{
-			Tags { "RenderType" = "Opaque" }
+			Tags { "RenderType" = "Geometry" }
 			LOD 100
 
 			Pass
@@ -101,7 +101,7 @@ Shader "Custom/NoiseGpuVerticesAnimation" {
 					// 计算对_Frame
 					float4 animRootLocalPosition = mul(_WorldToAnimRootNodeMatrix, mul(UNITY_MATRIX_M, float4(0,0,0,1)));
 					float4 frameIndexTexUV = float4(animRootLocalPosition.x / (_PerPixelWorldSize*_FrameIndexTex_TexelSize.z), animRootLocalPosition.z / (_PerPixelWorldSize*_FrameIndexTex_TexelSize.w), 0, 0);
-					int frameOffset = round(tex2Dlod(_FrameIndexTex, frameIndexTexUV).r*255);
+					int frameOffset = 0;// round(tex2Dlod(_FrameIndexTex, frameIndexTexUV).r * 255);
 
 
 					//int vertexIndex = vid;

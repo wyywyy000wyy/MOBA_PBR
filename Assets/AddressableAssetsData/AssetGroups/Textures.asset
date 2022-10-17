@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
+  m_Name: Textures
+  m_EditorClassIdentifier: 
+  m_GroupName: Textures
+  m_Data:
+    m_SerializedData: []
+  m_GUID: 17552bd746268cc4ab24b05d70cf5d67
+  m_SerializeEntries:
+  - m_GUID: c617a692e7c6e2f4fa147acc52d9d229
+    m_Address: tex_grass
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: daee60854aec8924eb29ac7b97e89420
+    m_Address: tex_glass2
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  m_ReadOnly: 0
+  m_Settings: {fileID: 11400000, guid: 60555cbe3ba7f514399526c6917e6fd5, type: 2}
+  m_SchemaSet:
+    m_Schemas:
+    - {fileID: 11400000, guid: 1d9852f64f9a47f489f1d865b1a414aa, type: 2}
+    - {fileID: 11400000, guid: 0aa99fc76100226458a96e24fd991f19, type: 2}

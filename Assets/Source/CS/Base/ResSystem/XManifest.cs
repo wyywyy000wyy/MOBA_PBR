@@ -419,48 +419,48 @@ public sealed class XManifest
             bundleRules.Add(bundleRule);
         }
 
-#if UNITY_EDITOR
+//#if UNITY_EDITOR
 
-        #region CACHE
-        BundleExtraCacheInfo cacheInfo = null;
-        List<string> cacheInScene = null;
-        List<string> cacheAllTime = null;
-        List<string> notCache = null;
-        string infoText = BundleExtraInfoUtils.GetBundleExtraCacheInfoText();
-        if (!string.IsNullOrEmpty(infoText))
-        {
-            cacheInfo = LitJson.JsonMapper.ToObject<BundleExtraCacheInfo>(infoText);
-            if (cacheInfo != null)
-            {
-                cacheInScene = BundleExtraInfoUtils.ArrayToList<string>(cacheInfo.CacheInScene);
-                if (cacheInScene == null)
-                    cacheInScene = new List<string>();
-                cacheAllTime = BundleExtraInfoUtils.ArrayToList<string>(cacheInfo.CacheAllTime);
-                if (cacheAllTime == null)
-                    cacheAllTime = new List<string>();
+//        #region CACHE
+//        BundleExtraCacheInfo cacheInfo = null;
+//        List<string> cacheInScene = null;
+//        List<string> cacheAllTime = null;
+//        List<string> notCache = null;
+//        string infoText = BundleExtraInfoUtils.GetBundleExtraCacheInfoText();
+//        if (!string.IsNullOrEmpty(infoText))
+//        {
+//            cacheInfo = LitJson.JsonMapper.ToObject<BundleExtraCacheInfo>(infoText);
+//            if (cacheInfo != null)
+//            {
+//                cacheInScene = BundleExtraInfoUtils.ArrayToList<string>(cacheInfo.CacheInScene);
+//                if (cacheInScene == null)
+//                    cacheInScene = new List<string>();
+//                cacheAllTime = BundleExtraInfoUtils.ArrayToList<string>(cacheInfo.CacheAllTime);
+//                if (cacheAllTime == null)
+//                    cacheAllTime = new List<string>();
 
-                notCache = BundleExtraInfoUtils.ArrayToList<string>(cacheInfo.NotCache);
-                if (notCache == null)
-                    notCache = new List<string>();
+//                notCache = BundleExtraInfoUtils.ArrayToList<string>(cacheInfo.NotCache);
+//                if (notCache == null)
+//                    notCache = new List<string>();
 
-                foreach (Pack pack in packs)
-                {
-                    SetupBundleCacheType(pack, notCache, cacheInScene, cacheAllTime);
-                }
+//                foreach (Pack pack in packs)
+//                {
+//                    SetupBundleCacheType(pack, notCache, cacheInScene, cacheAllTime);
+//                }
 
-                foreach (Scene scene in scenes)
-                {
-                    SetupBundleCacheType(scene, notCache, cacheInScene, cacheAllTime);
-                }
-            }
-        }
-        else
-            Debug.LogError("NOT FOUND BUNDLE EXTRA INFO TEXT!!!!!!!!!!!!");
+//                foreach (Scene scene in scenes)
+//                {
+//                    SetupBundleCacheType(scene, notCache, cacheInScene, cacheAllTime);
+//                }
+//            }
+//        }
+//        else
+//            Debug.LogError("NOT FOUND BUNDLE EXTRA INFO TEXT!!!!!!!!!!!!");
 
-        #endregion      //CACHE
+//        #endregion      //CACHE
 
 
-#endif
+//#endif
 
         XManifestInfo manifest = new XManifestInfo();
         manifest.packs = packs;
@@ -478,11 +478,11 @@ public sealed class XManifest
         {
             StringBuilder sb = new StringBuilder();
             System.IO.StringWriter writer = new System.IO.StringWriter(sb);
-            LitJson.JsonMapper.ToJson(manifest,
-                                      new LitJson.JsonWriter(writer)
-                                      {
-                                          PrettyPrint = pretty
-                                      });
+            //LitJson.JsonMapper.ToJson(manifest,
+            //                          new LitJson.JsonWriter(writer)
+            //                          {
+            //                              PrettyPrint = pretty
+            //                          });
 
             byte[] buff = Encoding.UTF8.GetBytes(sb.ToString());
 
@@ -786,7 +786,8 @@ public sealed class XManifest
 
         public static XManifestInfo Parse(string data)
         {
-            return LitJson.JsonMapper.ToObject<XManifestInfo>(data);
+            return new XManifestInfo();
+            //return LitJson.JsonMapper.ToObject<XManifestInfo>(data);
         }
 
         public void Init()
