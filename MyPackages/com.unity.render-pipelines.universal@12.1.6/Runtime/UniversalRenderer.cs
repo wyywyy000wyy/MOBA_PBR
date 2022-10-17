@@ -87,6 +87,8 @@ namespace UnityEngine.Rendering.Universal
         TileDepthRangePass m_TileDepthRangePass;
         TileDepthRangePass m_TileDepthRangeExtraPass; // TODO use subpass API to hide this pass
         DeferredPass m_DeferredPass;
+        RenderOpaquePass m_RenderOpaquePass;
+        RenderRefractPass m_RenderRefractPass;
         DrawObjectsPass m_RenderOpaqueForwardOnlyPass;
         DrawObjectsPass m_RenderOpaqueForwardPass;
         DrawSkyboxPass m_DrawSkyboxPass;
@@ -260,7 +262,8 @@ namespace UnityEngine.Rendering.Universal
 
             // Always create this pass even in deferred because we use it for wireframe rendering in the Editor or offscreen depth texture rendering.
             m_RenderOpaqueForwardPass = new DrawObjectsPass(URPProfileId.DrawOpaqueObjects, true, RenderPassEvent.BeforeRenderingOpaques, RenderQueueRange.opaque, data.opaqueLayerMask, m_DefaultStencilState, stencilData.stencilReference);
-
+            m_RenderOpaquePass = new RenderOpaquePass(true, RenderPassEvent.AfterRenderingShadows, RenderQueueRange.opaque, data.opaqueLayerMask, m_DefaultStencilState, stencilData.stencilReference);
+            m_RenderRefractPass = new RenderRefractPass(true, RenderPassEvent.AfterRenderingShadows, RenderQueueRange.opaque, data.opaqueLayerMask, m_DefaultStencilState, stencilData.stencilReference);
             m_CopyDepthPass = new CopyDepthPass(RenderPassEvent.AfterRenderingSkybox, m_CopyDepthMaterial);
             m_DrawSkyboxPass = new DrawSkyboxPass(RenderPassEvent.BeforeRenderingSkybox);
             m_CopyColorPass = new CopyColorPass(RenderPassEvent.AfterRenderingSkybox, m_SamplingMaterial, m_BlitMaterial);
@@ -714,6 +717,8 @@ namespace UnityEngine.Rendering.Universal
                     opaquePassDepthStoreAction = RenderBufferStoreAction.Store;
                 }
 #endif
+                EnqueuePass(m_RenderRefractPass);
+                EnqueuePass(m_RenderOpaquePass);
 
                 m_RenderOpaqueForwardPass.ConfigureColorStoreAction(opaquePassColorStoreAction);
                 m_RenderOpaqueForwardPass.ConfigureDepthStoreAction(opaquePassDepthStoreAction);
