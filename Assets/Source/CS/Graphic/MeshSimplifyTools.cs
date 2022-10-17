@@ -130,23 +130,26 @@ public class MeshSimplifyTools
         {
             float4x4 q = v1.quadric + v2.quadric;
             float3 v;
-            if (math.determinant(q) != 0)
+            float3x3 q3 = (float3x3)q;
+            float dt = math.determinant(q3);
+            if (math.abs(dt) > math.EPSILON)
             {
-                float3x3 q3 = (float3x3)q;
                 float3x3 vq = math.inverse(q3);
                 float3 tv = -q.c3.xyz;
-                v = math.mul(vq, tv);
+                v = math.mul(tv, vq); ;// math.mul(math.transpose(vq), tv);
                 float4 v4 = new float4(v, 1);
-                quadric = math.dot(v4, math.mul(q, v4));
+                var tl=math.mul(v4, q);
+                var tr=math.mul(q, v4);
+                quadric = math.dot(math.mul(q, v4), v4);
             }
             else
             {
                 float4 vv1 = new float4(v1.p, 1);
-                float quadric1 = math.dot(vv1, math.mul(q, vv1));
+                float quadric1 = math.dot(math.mul(q, vv1), vv1);
                 float4 vv2 = new float4(v2.p, 1);
-                float quadric2 = math.dot(vv2, math.mul(q, vv2));
+                float quadric2 = math.dot(math.mul(q, vv2), vv2);
                 float4 vv12 = new float4((v1.p + v2.p) / 2, 1);
-                float quadric3 = math.dot(vv12, math.mul(q, vv12));
+                float quadric3 = math.dot(math.mul(q, vv12), vv12);
                 quadric = math.min(quadric1, math.min(quadric2, quadric3));
             }
         }
