@@ -1,6 +1,6 @@
 
 
-print("main run")
+logger.print("main run")
 
 local action_list = {}
 
