@@ -8,6 +8,9 @@ public class MeshSimplify : MonoBehaviour
     public List<Vector3> vertexes;
     public List<int> indexes;
     public MeshSimplify source;
+    public int SimplifyEdgeCount;
+
+    public SimplifyTask task;
 
     [HideInInspector]
     public TriangleType triangleType = TriangleType.Fan;

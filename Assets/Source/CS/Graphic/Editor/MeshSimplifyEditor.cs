@@ -577,12 +577,61 @@ public class MeshSimplifyEditor : Editor
         }
         else
         {
-            if(_target.source != null && _target.source.edges != null)
+            if(_target.task != null && _target.task.edges != null)
             {
-                foreach(var e in _target.source.edges)
+                var pc = GUI.color;
+                GUI.color = Color.blue;
+                var pm = Handles.matrix;
+
+                foreach (var e in _target.task.removedEdges)
                 {
-                    Handles.Label(e.Value.center, e.Value.id.ToString());
+                    Handles.DrawLine(e.GetV1().p, e.GetV2().p, 1);
+                    Handles.DrawLine(e.GetV2().p, e.GetV1().p, 1);
+                    Handles.Label(e.GetV1().p, "????????");
+                    //Handles.DrawLine(new Vector3(0, -1, 0), new Vector3(0, 1, 0), 1);
                 }
+                Handles.matrix = _target.source.transform.localToWorldMatrix;
+                var pcc = Handles.color;
+                Handles.color = Color.red;
+                
+                Handles.color = pcc;
+
+                foreach (var e in _target.task.oldEdges)
+                {
+                    //if(e.Value.version == 0)
+                    {
+                        Handles.Label(e.center, e.id.ToString());
+                    }
+                }
+                GUI.color = Color.green;
+                foreach (var e in _target.task.oldVertices)
+                {
+                    //if (e.version == 0)
+                    {
+                        Handles.Label(e.p, e.id.ToString());
+                    }
+                }
+
+                GUI.color = Color.blue;
+                Handles.matrix = _target.transform.localToWorldMatrix;
+                foreach (var e in _target.task.oldEdges)
+                {
+                    //if(e.Value.version == 0)
+                    {
+                        Handles.Label(e.center, e.id.ToString());
+                    }
+                }
+                GUI.color = Color.green;
+                foreach (var e in _target.task.oldVertices)
+                {
+                    //if (e.version == 0)
+                    {
+                        Handles.Label(e.p, e.id.ToString());
+                    }
+                }
+
+                Handles.matrix = pm;
+                GUI.color = pc;
             }
         }
 
