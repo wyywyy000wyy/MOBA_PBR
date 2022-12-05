@@ -38,11 +38,29 @@ public class MeshSimplifyTools
         public int version;
         public int id;
         public float3 p;
+        public float2 uv;
         public Vertex next;
+
+        public bool PosAndUvEqual(float3 pos,float2 _uv)
+        {
+            return p.Equals(pos) && uv.Equals(_uv);
+        }
 
         public Vertex()
         {
             next = this;
+        }
+
+        public Vertex AddNext(Vertex _next)
+        {
+            if(_next.next != _next)
+            {
+                Debug.LogError("Vertex AddNext _next.next != null");
+                return null;
+            }
+            _next.next = this.next;
+            this.next = _next;
+            return _next;
         }
 
         public List<Edge> edges = new List<Edge>();
@@ -135,6 +153,18 @@ public class MeshSimplifyTools
             next = this;
         }
 
+        public Edge AddNext(Edge _next)
+        {
+            if (_next.next != _next)
+            {
+                Debug.LogError("Edge AddNext _next.next != null");
+                return null;
+            }
+            _next.next = this.next;
+            this.next = _next;
+            return _next;
+        }
+
         public Edge(Vertex _v1, Vertex _v2)
         {
             //if (!_v1.edges.Contains(this) || !_v2.edges.Contains(this))
@@ -155,6 +185,19 @@ public class MeshSimplifyTools
             return objA == objB;
         }
 
+        public class EdgePosComparer : IEqualityComparer<Edge>
+        {
+            public int GetHashCode(Edge key)
+            {
+                return key.v1.GetHashCode() + key.v2.GetHashCode();
+            }
+
+            public bool Equals(Edge v1, Edge v2)
+            {
+                return v1.PosEquals(v1, v2);
+            }
+        }
+
         public class EqualityComparer : IEqualityComparer<Edge>
         {
             public int GetHashCode(Edge key)
@@ -164,7 +207,7 @@ public class MeshSimplifyTools
 
             public bool Equals(Edge v1, Edge v2)
             {
-                return v1.Equals2(v1, v2);
+                return v1.VertEquals(v1, v2);
             }
         }
 
@@ -254,7 +297,8 @@ public class MeshSimplifyTools
         {
             return Equals2(x,y);
         }
-        public bool Equals2(Edge x, Edge y)
+
+        public bool PosEquals(Edge x, Edge y)
         {
             Vector3 x1 = x.v1.p;
             Vector3 x2 = x.v2.p;
@@ -266,6 +310,15 @@ public class MeshSimplifyTools
             bool b2 = x2 == y2;
             bool b3 = x1 == y2;
             bool b4 = x2 == y1;
+            return b1 && b2 || b3 && b4;
+
+        }
+        public bool VertEquals(Edge x, Edge y)
+        {
+            bool b1 = x.v1 == y.v1;
+            bool b2 = x.v2 == y.v2;
+            bool b3 = x.v1 == y.v2;
+            bool b4 = x.v2 == y.v1;
 
             return b1 && b2 || b3 && b4;
         }
@@ -277,6 +330,77 @@ public class MeshSimplifyTools
         public int GetHashCode2()
         {
             return v1.p.GetHashCode() + v2.p.GetHashCode();
+        }
+
+        public void CalcQuadricValueAndCost()
+        {
+            float4x4 q = v1.quadric + v2.quadric;
+            float3 v;
+            float3x3 q3 = (float3x3)q;
+            float dt = math.determinant(q3);
+            if (math.abs(dt) > math.EPSILON)
+            {
+                float3x3 vq = math.inverse(q3);
+                float3 tv = -q.c3.xyz;
+                v = math.mul(tv, vq);
+                float4 v4 = new float4(v, 1);
+                newVec = v;
+
+                //float nq = 0;
+                //for (int i = 0; i < 4; ++i)
+                //{
+                //    for (int j = 0; j < 4; ++j)
+                //    {
+                //        nq += v4[i] * q[i][j] * v4[j];
+                //    }
+                //}
+
+                //float4 dv4 = new float4(
+                //    q.c0.x * v4.x + q.c0.y * v4.y + q.c0.z * v4.z + q.c0.w * v4.w,
+                //    q.c1.x * v4.x + q.c1.y * v4.y + q.c1.z * v4.z + q.c1.w * v4.w,
+                //    q.c2.x * v4.x + q.c2.y * v4.y + q.c2.z * v4.z + q.c2.w * v4.w,
+                //    q.c3.x * v4.x + q.c3.y * v4.y + q.c3.z * v4.z + q.c3.w * v4.w
+                //    );
+
+                //float tf1 = q.c1.z;
+                //float tf2 = q[1][2];
+
+                //float tf21 = q.c2.y;
+                //float tf22 = q[2][1];
+
+
+                //float dq = math.dot(dv4, v4);
+
+                //float dq3 =
+                //    (q.c0.x * v4.x + q.c0.y * v4.y + q.c0.z * v4.z + q.c0.w * v4.w) * v4.x +
+                //    (q.c1.x * v4.x + q.c1.y * v4.y + q.c1.z * v4.z + q.c1.w * v4.w) * v4.y +
+                //    (q.c2.x * v4.x + q.c2.y * v4.y + q.c2.z * v4.z + q.c2.w * v4.w) * v4.z +
+                //    (q.c3.x * v4.x + q.c3.y * v4.y + q.c3.z * v4.z + q.c3.w * v4.w) * v4.w;
+
+                var dv = math.mul(v4, q);
+                quadric = math.dot(dv, v4);
+            }
+            else
+            {
+                float4 vv1 = new float4(v1.p, 1);
+                float quadric1 = math.dot(math.mul(q, vv1), vv1);
+                float4 vv2 = new float4(v2.p, 1);
+                float quadric2 = math.dot(math.mul(q, vv2), vv2);
+                float4 vv12 = new float4((v1.p + v2.p) / 2, 1);
+                float quadric3 = math.dot(math.mul(q, vv12), vv12);
+                newVec = vv1.xyz;
+                if (quadric2 < quadric1)
+                {
+                    newVec = vv2.xyz;
+                    quadric1 = quadric2;
+                }
+                if (quadric3 < quadric1)
+                {
+                    newVec = vv12.xyz;
+                    quadric1 = quadric3;
+                }
+                quadric = quadric1;
+            }
         }
 
         public void CalcQuadricValue()
@@ -649,18 +773,38 @@ public class MeshSimplifyTools
         //List<Edge> edges = new List<Edge>();
         //HashSet<Edge> edges = new HashSet<Edge>();
         Dictionary<Edge, Edge> edges = new Dictionary<Edge, Edge>(new Edge.EqualityComparer());
+        Dictionary<Edge, Edge> posEdges = new Dictionary<Edge, Edge>(new Edge.EdgePosComparer());
+        
         Dictionary<float3, Vertex> vertMap = new Dictionary<float3, Vertex>();
-        foreach(float3 v in mesh.vertices)
+        Dictionary<int, Vertex> vertIdMap = new Dictionary<int, Vertex>();
+        //foreach (float3 v in mesh.vertices)
+        for(int i = 0; i < mesh.vertices.Length; ++i)
         {
-            if(!vertMap.TryGetValue(v, out var vt))
+            var vert = mesh.vertices[i];
+            if(!vertMap.TryGetValue(vert, out var vt))
             {
                 vt = new Vertex
                 {
                     id = vertMap.Count,
-                    p = v
+                    p = vert
                 };
-                vertMap.Add(v, vt);
+                vertIdMap[vt.id] = vt;
+                vertMap[vert] = vt;
                 vertices.Add(vt);
+            }
+            else
+            {
+                if(!vt.PosAndUvEqual(vert, mesh.uv[i]))
+                {
+                    var vt_new = new Vertex
+                    {
+                        id = vertMap.Count,
+                        p = vert
+                    };
+                    vertIdMap[vt_new.id] = vt_new;
+                    vertices.Add(vt_new);
+                    vt.AddNext(vt_new);
+                }
             }
         }
 
@@ -673,11 +817,10 @@ public class MeshSimplifyTools
             for (int j = 0; j < 3; j++)
             {
                 int i1 = indices[i + j];
-                float3 vv1 = mesh.vertices[i1];
-                Vertex v1 = vertMap[vv1];
+                Vertex v1 = vertIdMap[i1];
                 int i2 = indices[i + ((j + 1) % 3)];
-                float3 vv2 = mesh.vertices[i2];
-                Vertex v2 = vertMap[vv2];
+                Vertex v2 = vertIdMap[i2];
+
                 Edge e = new Edge(v1,v2) { id = edges.Count };
                 if (edges.TryGetValue(e, out var ee))
                 {
@@ -686,7 +829,17 @@ public class MeshSimplifyTools
                 else
                 {
                     edges.Add(e,e);
+
+                    if (posEdges.TryGetValue(e, out var preEdge))
+                    {
+                        preEdge.AddNext(e);
                 }
+                    else
+                    {
+                        posEdges[e] = e;
+                    }
+                }
+
                 v1.AddEdge(e);
                 v2.AddEdge(e);
                 //v1.triangles.Add(triangle);
