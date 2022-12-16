@@ -6,6 +6,10 @@ using System.Collections.Generic;
 using UnityEngine;
 public class MeshSimplifyTools
 {
+
+    public static float BounderEdgePenalty = 1e7f;
+    public static float ErrorTranglePenalty = 1e7f;
+
     UInt32 Murmur32(List<UInt32> InitList)
     {
         UInt32 Hash = 0;
@@ -41,6 +45,34 @@ public class MeshSimplifyTools
         public float2 uv;
         public Vertex next;
 
+        public float CalcVertCost(float3 newPos)
+        {
+            float Cost = 0;
+            float disCost = math.length(newPos - p);
+            foreach(var t in triangles)
+            {
+                if (t.Removed)
+                    continue;
+                Cost += disCost;
+                if(!t.ValidNewPos(this, newPos))
+                {
+                    Cost += ErrorTranglePenalty;
+                }
+            }
+            return Cost;
+        }
+        public float CalcCost(float3 newPos)
+        {
+            float Cost = 0;
+            for(var ip = this; this != ip.next; ip = ip.next)
+            {
+                if (ip.Removed)
+                    continue;
+                Cost += CalcVertCost(newPos);
+            }
+
+            return Cost;
+        }
         public bool PosAndUvEqual(float3 pos,float2 _uv)
         {
             return p.Equals(pos) && uv.Equals(_uv);
@@ -126,6 +158,8 @@ public class MeshSimplifyTools
         //}
 
         //public Vector3 normal;
+
+        public bool Removed => version < 0;
 
         public float4x4 quadric = float4x4.zero;
 
@@ -254,27 +288,8 @@ public class MeshSimplifyTools
 
         public float3 newVec;
         public float quadric;
+        public float cost;
         public List<Triangle> triangles = new List<Triangle>();
-        //public int CompareTo(Edge e2)
-        //{
-
-        //    if(quadric != e2.quadric)
-        //    {
-        //        return quadric.CompareTo(e2.quadric);
-        //    }
-
-        //    return id.CompareTo(e2.id);
-        //}
-        //public int Compare(Edge e1, Edge e2)
-        //{
-        //    if (e1.quadric != e2.quadric)
-        //    {
-        //        return e1.quadric.CompareTo(e2.quadric);
-        //    }
-
-        //    return e1.id.CompareTo(e2.id);
-        //}
-
         public static int __Compare(Edge e1, Edge e2)
         {
             if(e1.version != e2.version)
@@ -289,10 +304,6 @@ public class MeshSimplifyTools
             return e1.id.CompareTo(e2.id);
         }
 
-        //public override int CompareTo(Edge other);
-        //{
-        //    return 0;
-        //}
         public bool Equals(Edge x, Edge y)
         {
             return Equals2(x,y);
@@ -332,75 +343,39 @@ public class MeshSimplifyTools
             return v1.p.GetHashCode() + v2.p.GetHashCode();
         }
 
-        public void CalcQuadricValueAndCost()
+        public bool isBounder()
         {
-            float4x4 q = v1.quadric + v2.quadric;
-            float3 v;
-            float3x3 q3 = (float3x3)q;
-            float dt = math.determinant(q3);
-            if (math.abs(dt) > math.EPSILON)
+            int c = 0;
+            foreach(var t in triangles)
             {
-                float3x3 vq = math.inverse(q3);
-                float3 tv = -q.c3.xyz;
-                v = math.mul(tv, vq);
-                float4 v4 = new float4(v, 1);
-                newVec = v;
-
-                //float nq = 0;
-                //for (int i = 0; i < 4; ++i)
-                //{
-                //    for (int j = 0; j < 4; ++j)
-                //    {
-                //        nq += v4[i] * q[i][j] * v4[j];
-                //    }
-                //}
-
-                //float4 dv4 = new float4(
-                //    q.c0.x * v4.x + q.c0.y * v4.y + q.c0.z * v4.z + q.c0.w * v4.w,
-                //    q.c1.x * v4.x + q.c1.y * v4.y + q.c1.z * v4.z + q.c1.w * v4.w,
-                //    q.c2.x * v4.x + q.c2.y * v4.y + q.c2.z * v4.z + q.c2.w * v4.w,
-                //    q.c3.x * v4.x + q.c3.y * v4.y + q.c3.z * v4.z + q.c3.w * v4.w
-                //    );
-
-                //float tf1 = q.c1.z;
-                //float tf2 = q[1][2];
-
-                //float tf21 = q.c2.y;
-                //float tf22 = q[2][1];
-
-
-                //float dq = math.dot(dv4, v4);
-
-                //float dq3 =
-                //    (q.c0.x * v4.x + q.c0.y * v4.y + q.c0.z * v4.z + q.c0.w * v4.w) * v4.x +
-                //    (q.c1.x * v4.x + q.c1.y * v4.y + q.c1.z * v4.z + q.c1.w * v4.w) * v4.y +
-                //    (q.c2.x * v4.x + q.c2.y * v4.y + q.c2.z * v4.z + q.c2.w * v4.w) * v4.z +
-                //    (q.c3.x * v4.x + q.c3.y * v4.y + q.c3.z * v4.z + q.c3.w * v4.w) * v4.w;
-
-                var dv = math.mul(v4, q);
-                quadric = math.dot(dv, v4);
+                if (!t.Removed)
+                    c++;
             }
-            else
+            return c == 1;
+        }
+        public bool Removed => version < 0;
+
+        public float CalcVertCost()
+        {
+            float Cost = 0;
+            if (Removed)
+                return Cost;
+            if (isBounder())
+                Cost += BounderEdgePenalty;
+            float v1Cost = v1.CalcCost(newVec);
+            float v2Cost = v2.CalcCost(newVec);
+            Cost += v1Cost + v2Cost;
+            return Cost;
+        }
+
+        public float CalcEdgeCost()
+        {
+            float Cost = 0;
+            for(var e = this; this != e.next; e = e.next)
             {
-                float4 vv1 = new float4(v1.p, 1);
-                float quadric1 = math.dot(math.mul(q, vv1), vv1);
-                float4 vv2 = new float4(v2.p, 1);
-                float quadric2 = math.dot(math.mul(q, vv2), vv2);
-                float4 vv12 = new float4((v1.p + v2.p) / 2, 1);
-                float quadric3 = math.dot(math.mul(q, vv12), vv12);
-                newVec = vv1.xyz;
-                if (quadric2 < quadric1)
-                {
-                    newVec = vv2.xyz;
-                    quadric1 = quadric2;
-                }
-                if (quadric3 < quadric1)
-                {
-                    newVec = vv12.xyz;
-                    quadric1 = quadric3;
-                }
-                quadric = quadric1;
+                Cost += CalcVertCost();
             }
+            return Cost;
         }
 
         public void CalcQuadricValue()
@@ -485,10 +460,16 @@ public class MeshSimplifyTools
     {
         public int version;
         public int id;
+        public bool Removed => version < 0;
 
         public Vertex GetVert(int i)
         {
             return vertices[i];
+        }
+
+        public bool ValidNewPos(Vertex v, float3 newPos)
+        {
+
         }
 
         public void SetVert(int ii, Vertex v)
@@ -786,9 +767,10 @@ public class MeshSimplifyTools
                 vt = new Vertex
                 {
                     id = vertMap.Count,
-                    p = vert
+                    p = vert,
+                    uv = mesh.uv[i],
                 };
-                vertIdMap[vt.id] = vt;
+                vertIdMap[i] = vt;
                 vertMap[vert] = vt;
                 vertices.Add(vt);
             }
@@ -799,11 +781,16 @@ public class MeshSimplifyTools
                     var vt_new = new Vertex
                     {
                         id = vertMap.Count,
-                        p = vert
+                        p = vert,
+                        uv = mesh.uv[i],
                     };
-                    vertIdMap[vt_new.id] = vt_new;
+                    vertIdMap[i] = vt_new;
                     vertices.Add(vt_new);
                     vt.AddNext(vt_new);
+                }
+                else
+                {
+                    vertIdMap[i] = vt;
                 }
             }
         }
@@ -829,11 +816,10 @@ public class MeshSimplifyTools
                 else
                 {
                     edges.Add(e,e);
-
                     if (posEdges.TryGetValue(e, out var preEdge))
                     {
                         preEdge.AddNext(e);
-                }
+                    }
                     else
                     {
                         posEdges[e] = e;
