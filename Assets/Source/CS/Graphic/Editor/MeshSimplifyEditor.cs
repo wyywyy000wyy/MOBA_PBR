@@ -596,39 +596,84 @@ public class MeshSimplifyEditor : Editor
                 
                 Handles.color = pcc;
 
-                foreach (var e in _target.task.oldEdges)
+                if (_target.drawEdge)
                 {
-                    //if(e.Value.version == 0)
+                    foreach (var e in _target.task.oldEdges)
                     {
-                        Handles.Label(e.center, e.id.ToString());
-                    }
-                }
-                GUI.color = Color.green;
-                foreach (var e in _target.task.oldVertices)
-                {
-                    //if (e.version == 0)
-                    {
-                        Handles.Label(e.p, e.id.ToString());
+                        Vector3 p = e.center;
+                        if (!e.first)
+                        {
+                            p += _target.offset;
+                        }
+                        Handles.Label(p, e.id.ToString());
                     }
                 }
 
+                GUI.color = Color.green;
+                Dictionary<Vector3, int> drawDic = new Dictionary<Vector3, int>();
+                if(_target.drawVec)
+                {
+                    foreach (var e in _target.task.oldVertices)
+                    {
+                        //if (e.version == 0)
+                        {
+                            Vector3 p = e.p;
+                            if (drawDic.ContainsKey(p))
+                            {
+                                int v = drawDic[p];
+                                drawDic[p]++;
+                                p += _target.offset * v;
+                            }
+                            else
+                            {
+                                drawDic[p] = 1;
+
+                            }
+                            Handles.Label(p, e.id.ToString());
+                        }
+                    }
+                }
+                
+
                 GUI.color = Color.blue;
                 Handles.matrix = _target.transform.localToWorldMatrix;
-                foreach (var e in _target.task.oldEdges)
+                if (_target.drawEdge)
                 {
-                    //if(e.Value.version == 0)
+                    foreach (var e in _target.task.oldEdges)
                     {
-                        Handles.Label(e.center, e.id.ToString());
+                        Vector3 p = e.center;
+                        if (!e.first)
+                        {
+                            p += _target.offset;
+                        }
+                        Handles.Label(p, e.id.ToString());
                     }
                 }
-                GUI.color = Color.green;
-                foreach (var e in _target.task.oldVertices)
+                if (_target.drawVec)
                 {
-                    //if (e.version == 0)
+                    drawDic.Clear();
+                    foreach (var e in _target.task.oldVertices)
                     {
-                        Handles.Label(e.p, e.id.ToString());
+                        //if (e.version == 0)
+                        {
+                            Vector3 p = e.p;
+                            if (drawDic.ContainsKey(p))
+                            {
+                                int v = drawDic[p];
+                                drawDic[p]++;
+                                p += _target.offset * v;
+                            }
+                            else
+                            {
+                                drawDic[p] = 1;
+
+                            }
+                            Handles.Label(p, e.id.ToString());
+                        }
                     }
                 }
+                
+
 
                 Handles.matrix = pm;
                 GUI.color = pc;

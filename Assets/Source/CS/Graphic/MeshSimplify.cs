@@ -4,6 +4,9 @@ using static MeshSimplifyTools;
 
 public class MeshSimplify : MonoBehaviour
 {
+    public bool drawVec = true;
+    public bool drawEdge = true;
+    public Vector3 offset = new Vector3(0.1f,0,0);
     public Mesh mesh;
     public List<Vector3> vertexes;
     public List<int> indexes;

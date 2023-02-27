@@ -7,7 +7,7 @@ using UnityEngine;
 public class MeshSimplifyTools
 {
 
-    public static float BounderEdgePenalty = 1e7f;
+    public static float BounderEdgePenalty = 1e6f;
     public static float ErrorTranglePenalty = 1e7f;
 
     UInt32 Murmur32(List<UInt32> InitList)
@@ -45,6 +45,20 @@ public class MeshSimplifyTools
         public float2 uv;
         public Vertex next;
 
+        static HashSet<Vertex> _CollectVertex_tmp_set = new HashSet<Vertex>();
+        public void CollectVertex(List<Vertex> vertexes)
+        {
+            if(this == this.next)
+            {
+                int a = 1;
+                a = 2;
+            }
+            for(var v = this; v.next != this; v = v.next)
+            {
+                vertexes.Add(v);
+            }
+        }
+
         public float CalcVertCost(float3 newPos)
         {
             float Cost = 0;
@@ -73,9 +87,19 @@ public class MeshSimplifyTools
 
             return Cost;
         }
+
+        public bool PosAndUvEqual(Vertex v)
+        {
+            return PosAndUvEqual(v.p, v.uv);
+        }
         public bool PosAndUvEqual(float3 pos,float2 _uv)
         {
             return p.Equals(pos) && uv.Equals(_uv);
+        }
+
+        public bool PosEqual(Vertex v)
+        {
+            return p.Equals(v.p);
         }
 
         public Vertex()
@@ -181,6 +205,7 @@ public class MeshSimplifyTools
         //{
         //    return objA.IsEqual(objB);
         //}
+        public bool first;
         public Edge next;
         public Edge()
         {
@@ -223,7 +248,7 @@ public class MeshSimplifyTools
         {
             public int GetHashCode(Edge key)
             {
-                return key.v1.GetHashCode() + key.v2.GetHashCode();
+                return key.v1.p.GetHashCode() + key.v2.p.GetHashCode();
             }
 
             public bool Equals(Edge v1, Edge v2)
@@ -263,6 +288,25 @@ public class MeshSimplifyTools
             }
             v1 = v;
         }
+
+        public void ReplaceVert(Vertex oldVert, Vertex newVert)
+        {
+            Vertex v = null;
+            if(v1 == oldVert)
+            {
+                v = v1;
+            }
+            else if(v2 == oldVert)
+            {
+                v = v2;
+            }
+            else
+            {
+                throw new Exception($"错误的替换边{this}上的顶点{oldVert}");
+            }
+
+        }
+
         public Vertex GetV1()
         {
             return v1;
@@ -296,9 +340,9 @@ public class MeshSimplifyTools
             {
                 return -e1.version.CompareTo(e2.version);
             }
-            if (e1.quadric != e2.quadric)
+            if (e1.cost != e2.cost)
             {
-                return e1.quadric.CompareTo(e2.quadric);
+                return e1.cost.CompareTo(e2.cost);
             }
 
             return e1.id.CompareTo(e2.id);
@@ -306,30 +350,25 @@ public class MeshSimplifyTools
 
         public bool Equals(Edge x, Edge y)
         {
-            return Equals2(x,y);
+            return x.VertEquals(x,y);
         }
 
         public bool PosEquals(Edge x, Edge y)
         {
-            Vector3 x1 = x.v1.p;
-            Vector3 x2 = x.v2.p;
+            bool b1 = x.v1.PosEqual(y.v1);
+            bool b2 = x.v2.PosEqual(y.v2);
+            bool b3 = x.v1.PosEqual(y.v2);
+            bool b4 = x.v2.PosEqual(y.v1);
 
-            Vector3 y1 = y.v1.p;
-            Vector3 y2 = y.v2.p;
-
-            bool b1 = x1 == y1;
-            bool b2 = x2 == y2;
-            bool b3 = x1 == y2;
-            bool b4 = x2 == y1;
             return b1 && b2 || b3 && b4;
 
         }
         public bool VertEquals(Edge x, Edge y)
         {
-            bool b1 = x.v1 == y.v1;
-            bool b2 = x.v2 == y.v2;
-            bool b3 = x.v1 == y.v2;
-            bool b4 = x.v2 == y.v1;
+            bool b1 = x.v1.PosAndUvEqual(y.v1);
+            bool b2 = x.v2.PosAndUvEqual(y.v2);
+            bool b3 = x.v1.PosAndUvEqual(y.v2);
+            bool b4 = x.v2.PosAndUvEqual(y.v1);
 
             return b1 && b2 || b3 && b4;
         }
@@ -370,19 +409,20 @@ public class MeshSimplifyTools
 
         public float CalcEdgeCost()
         {
-            float Cost = 0;
-            for(var e = this; this != e.next; e = e.next)
+            float tCost = CalcVertCost();
+            for (var e = this.next; e.next != this; e = e.next)
             {
-                Cost += CalcVertCost();
+                tCost += CalcVertCost();
             }
-            return Cost;
+            cost = tCost;
+            return tCost;
         }
 
         public void CalcQuadricValue()
         {
             float4x4 q = v1.quadric + v2.quadric;
             //q[3][0] = 0;
-            //q[3][1] = 0;
+            //q[3][1] = 0
             //q[3][2] = 0;
             //q[3][3] = 1.0f;
             float3 v;
@@ -434,24 +474,25 @@ public class MeshSimplifyTools
             }
             else
             {
+                float4 vv12 = new float4((v1.p + v2.p) / 2, 1);
+                float quadric3 = math.dot(math.mul(q, vv12), vv12);
                 float4 vv1 = new float4(v1.p, 1);
                 float quadric1 = math.dot(math.mul(q, vv1), vv1);
                 float4 vv2 = new float4(v2.p, 1);
                 float quadric2 = math.dot(math.mul(q, vv2), vv2);
-                float4 vv12 = new float4((v1.p + v2.p) / 2, 1);
-                float quadric3 = math.dot(math.mul(q, vv12), vv12);
-                newVec = vv1.xyz;
-                if (quadric2 < quadric1)
+                newVec = vv12.xyz;
+                quadric = quadric3;
+
+                if (quadric < quadric1)
+                {
+                    newVec = vv1.xyz;
+                    quadric = quadric1;
+                }
+                if (quadric < quadric2)
                 {
                     newVec = vv2.xyz;
-                    quadric1 = quadric2;
+                    quadric = quadric2;
                 }
-                if (quadric3 < quadric1)
-                {
-                    newVec = vv12.xyz;
-                    quadric1 = quadric3;
-                }
-                quadric = quadric1;
             }
         }
     }
@@ -467,9 +508,31 @@ public class MeshSimplifyTools
             return vertices[i];
         }
 
-        public bool ValidNewPos(Vertex v, float3 newPos)
+        public void ReplaceVert(Vertex oldVert, Vertex newVert)
         {
 
+        }
+
+        public bool ValidNewPos(Vertex v, float3 newPos)
+        {
+            float3 v0 = vertices[0].p;
+            float3 v1 = vertices[1].p;
+            float3 v2 = vertices[2].p;
+
+            float3 o1 = v1 - v0;
+            float3 o2 = v2 - v1;
+            float3 ou = math.cross(o1, o2);
+
+
+            float3 nv0 = vertices[0].p.Equals(v) ? newPos: vertices[0].p;
+            float3 nv1 = vertices[1].p.Equals(v) ? newPos : vertices[1].p;
+            float3 nv2 = vertices[2].p.Equals(v) ? newPos : vertices[2].p;
+
+            float3 n1 = nv1 - nv0;
+            float3 n2 = nv2 - nv1;
+            float3 nu = math.cross(n1, n2);
+
+            return math.dot(ou, nu) > 0;
         }
 
         public void SetVert(int ii, Vertex v)
@@ -489,18 +552,6 @@ public class MeshSimplifyTools
             }
             var preVert = vertices[ii];
             vertices[ii] = v;
-            //for(int i = 0; i < 3; ++i)
-            //{
-            //    var e = edges[i];
-            //    if(e != null && e.v1 == preVert)
-            //    {
-            //        e.v1 = v;
-            //    }
-            //    if(e != null && e.v2 == preVert)
-            //    {
-            //        e.v2 = v;
-            //    }
-            //}
         }
 
         Vertex[] vertices = new Vertex[3];
@@ -553,12 +604,26 @@ public class MeshSimplifyTools
             foreach (var e in edges)
             {
                 e.Value.CalcQuadricValue();
+                //sortedEdges.Add(e.Value);
+            }
+            foreach (var e in edges)
+            {
+                e.Value.CalcEdgeCost();
                 sortedEdges.Add(e.Value);
             }
+
             sortedEdges.Sort((v1, v2) => Edge.__Compare(v1, v2));
 
             oldVertices = vertices.Select(v => new Vertex { id = v.id, p = v.p, quadric = v.quadric }).ToList();
             oldEdges = sortedEdges.Select(v => new Edge(oldVertices[v.GetV1().id], oldVertices[v.GetV2().id]) { id = v.id, quadric = v.quadric }).ToList();
+            Dictionary<int, Edge> em = oldEdges.ToDictionary((Edge e) => { return e.id; });
+            for(int i = 0; i < sortedEdges.Count; ++i)
+            {
+                oldEdges[i].first = sortedEdges[i].first;
+                oldEdges[i].next = em[sortedEdges[i].next.id];
+            }
+
+
 
             for (int i = 0; i < SimplifyEdgeCount; ++i)
             {
@@ -601,7 +666,7 @@ public class MeshSimplifyTools
         {
             foreach (var e in sortedEdges)
             {
-                Debug.Log($"edge={e} newVec={e.newVec} version={e.version}");
+                Debug.Log($"edge={e.id} cost={e.cost} q={e.quadric} newVec={e.newVec} version={e.version}");
             }
             HashSet<Vertex> dirVert = new HashSet<Vertex>();
             HashSet<Edge> dirEdges = new HashSet<Edge>();
@@ -619,8 +684,6 @@ public class MeshSimplifyTools
             Vertex v2 = minEdge.GetV2();
             v2.version--;
 
-            
-
             Vertex newVert = new Vertex
             {
                 id = vertices.Count,
@@ -631,12 +694,12 @@ public class MeshSimplifyTools
             {
                 if (e.version < 0)
                     continue;
-                if(e.GetV1() == v1)
+                if(e.GetV1().PosAndUvEqual(v1))
                 {
                     newVert.AddEdge(e, false);
                     e.SetV1(newVert);
                 }
-                else if(e.GetV2() == v1)
+                else if(e.GetV2().PosAndUvEqual(v1))
                 {
                     newVert.AddEdge(e, false);
                     e.SetV2(newVert);
@@ -733,6 +796,10 @@ public class MeshSimplifyTools
             {
                 e.CalcQuadricValue();
             }
+            foreach (var e in dirEdges)
+            {
+                e.CalcEdgeCost();
+            }
 
             {
                 sortedEdges.Sort((v1, v2) => Edge.__Compare(v1, v2));
@@ -766,7 +833,7 @@ public class MeshSimplifyTools
             {
                 vt = new Vertex
                 {
-                    id = vertMap.Count,
+                    id = vertices.Count,
                     p = vert,
                     uv = mesh.uv[i],
                 };
@@ -780,7 +847,7 @@ public class MeshSimplifyTools
                 {
                     var vt_new = new Vertex
                     {
-                        id = vertMap.Count,
+                        id = vertices.Count,
                         p = vert,
                         uv = mesh.uv[i],
                     };
@@ -822,6 +889,7 @@ public class MeshSimplifyTools
                     }
                     else
                     {
+                        e.first = true;
                         posEdges[e] = e;
                     }
                 }
