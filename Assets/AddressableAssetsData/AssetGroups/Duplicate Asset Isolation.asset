@@ -21,10 +21,6 @@ MonoBehaviour:
     m_Address: Assets/BundledRes/Materials/Terrain/Park3Med/pz.jpg
     m_ReadOnly: 0
     m_SerializedLabels: []
-  - m_GUID: 45077d77785b6cc48a3544c4a7a073fa
-    m_Address: Assets/BundledRes/PBR/Shader/YSLit.shader
-    m_ReadOnly: 0
-    m_SerializedLabels: []
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: 60555cbe3ba7f514399526c6917e6fd5, type: 2}
   m_SchemaSet:

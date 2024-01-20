@@ -16,11 +16,7 @@ MonoBehaviour:
   m_Data:
     m_SerializedData: []
   m_GUID: 1adf279e20d82314d9ae2b38bbeca341
-  m_SerializeEntries:
-  - m_GUID: abf0c896de55ec94d8ddba3755ceec97
-    m_Address: Assets/DrawTest/TMat2.mat
-    m_ReadOnly: 0
-    m_SerializedLabels: []
+  m_SerializeEntries: []
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: 60555cbe3ba7f514399526c6917e6fd5, type: 2}
   m_SchemaSet:

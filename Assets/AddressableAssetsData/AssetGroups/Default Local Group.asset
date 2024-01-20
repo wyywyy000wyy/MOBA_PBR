@@ -17,8 +17,8 @@ MonoBehaviour:
     m_SerializedData: []
   m_GUID: 809f302374bdc4a4d8ab22ed913e3603
   m_SerializeEntries:
-  - m_GUID: bc588954fa2b14845bee21126d6b24a2
-    m_Address: Assets/RawRes/export(1)/export/btn_buduibianzu_qizhi_spin.png
+  - m_GUID: 28de69c83896380408befc1ba7e611c0
+    m_Address: ui_login
     m_ReadOnly: 0
     m_SerializedLabels: []
   m_ReadOnly: 0
