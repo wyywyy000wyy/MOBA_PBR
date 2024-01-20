@@ -12,5 +12,5 @@ EditorBuildSettings:
     path: Assets/BundledRes/Scenes/TestScene.unity
     guid: cf483b52aa0c5974ca11d5383f3879ac
   m_configObjects:
-    com.unity.addressableassets: {fileID: 11400000, guid: 31fc81ac61ccc794db50cd241a291dda,
+    com.unity.addressableassets: {fileID: 11400000, guid: a62765531de616b468acc368a9042f6e,
       type: 2}
