@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using UnityEditor.ShortcutManagement;
 using UnityEngine;
 using XLua;
 
@@ -12,7 +13,7 @@ public class Main : MonoBehaviour
     void Start()
     {
         GameObject.DontDestroyOnLoad(gameObject);
-        XLoader.Initialize(true);
+        //XLoader.Initialize(true);
         initLua();
     }
 
@@ -31,6 +32,18 @@ public class Main : MonoBehaviour
 
     }
 
+#if UNITY_EDITOR
+    [Shortcut("HotReload", KeyCode.F5)]
+#endif
+    public static void HotReload()
+    {
+        if (currentLuaEnv != null)
+        {
+            var rrquire_all = currentLuaEnv.Global.GetInPath<LuaFunction>("hot_require.rrquire_all");
+            rrquire_all.Call();
+        }
+    }
+
     // Update is called once per frame
     void Update()
     {
@@ -38,5 +51,11 @@ public class Main : MonoBehaviour
         {
             currentLuaEnv.Tick();
         }
+#if UNITY_EDITOR || UNITY_STANDALONE
+        if (Input.GetKeyUp(KeyCode.F5))
+        {
+            HotReload();
+        }
+#endif
     }
 }

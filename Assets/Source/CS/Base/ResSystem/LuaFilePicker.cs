@@ -5,6 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 
+[XLua.LuaCallCSharp]
 public class LuaFilePicker
 {
     public const string fileFolder = "files";
@@ -18,6 +19,11 @@ public class LuaFilePicker
     public static byte[] LoadFrom(string dir, string fn)
     {
         string filePath = System.IO.Path.Combine(dir, fn + ".lua");
+        return LoadFrom(filePath);
+    }
+
+    public static byte[] LoadFrom(string filePath)
+    {
         if (System.IO.File.Exists(filePath))
         {
             System.IO.FileStream fs = System.IO.File.OpenRead(filePath);
@@ -59,6 +65,69 @@ public class LuaFilePicker
         }
     }
 
+    public static string GetFilePath(string name)
+    {
+        string fn = name.Replace(".", "/");
+        foreach (var path in Defines.LuaFileSearchPath)
+        {
+            string p = Path.Combine(path, fn + ".lua");
+            if (File.Exists(p))
+            {
+                return p;
+            }
+        }
+        return "not find path";
+    }
+    public static long FileWriteTime(string path)
+    {
+        var sysTime = File.GetLastWriteTime(path);
+        return sysTime.Ticks;
+    }
+
+    public static bool IsFileExist(string name)
+    {
+        foreach (var path in Defines.LuaFileSearchPath)
+        {
+            string p = Path.Combine(path, name);
+            if (File.Exists(p))
+            {
+                return true;
+            }
+        }
+        return false;
+    }   
+
+    public static List<string> GetFolderFiles(string folder, bool recursive)
+    {
+        List<string> files = new List<string>();
+
+        string folderPath = "";
+
+        foreach (var path in Defines.LuaFileSearchPath)
+        {
+            string p = Path.Combine(path, folder);
+            if (Directory.Exists(p))
+            {
+                folderPath = p;
+                break;
+            }
+        }
+
+        if (Directory.Exists(folderPath))
+        {
+            DirectoryInfo dir = new DirectoryInfo(folderPath);
+            FileInfo[] fis = dir.GetFiles("*.lua", recursive ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly);
+            foreach (var fi in fis)
+            {
+                string p = Path.GetRelativePath(folderPath, fi.FullName);
+                files.Add(p.Replace(fi.Extension, ""));
+            }
+        }
+        int a = 1;
+        a = 2;
+        return files;
+    }   
+
     public static byte[] Load(string fn)
     {
 #if !RELEASE
@@ -71,18 +140,31 @@ public class LuaFilePicker
 
 #if !USE_BUNDLE_IN_EDITOR && (UNITY_EDITOR || UNITY_STANDALONE || !PUBLISH || ENABLE_GM)
 
-        foreach (var path in Defines.LuaFileSearchPath)
+        //foreach (var path in Defines.LuaFileSearchPath)
+        //{
+        //    byte[] buffer = LoadFrom(path, fn);
+        //    string p = Path.Combine(path, fn + ".lua");
+        //    if (buffer != null)
+        //    {
+        //        FileInfo fi = new FileInfo(p);
+        //        string lastWrite = fi.LastWriteTime.ToString();
+        //        fileMap.Add(fn);
+        //        fileMapKey.Add(lastWrite + p);
+        //        return buffer;
+        //    }
+        //}
         {
-            byte[] buffer = LoadFrom(path, fn);
-            string p = Path.Combine(path, fn + ".lua");
+            string filePath = GetFilePath(fn);
+            byte[] buffer = LoadFrom(filePath);
             if (buffer != null)
             {
-                FileInfo fi = new FileInfo(p);
+                FileInfo fi = new FileInfo(filePath);
                 string lastWrite = fi.LastWriteTime.ToString();
                 fileMap.Add(fn);
-                fileMapKey.Add(lastWrite + p);
+                fileMapKey.Add(lastWrite + filePath);
                 return buffer;
             }
+
         }
 #endif
         XManifest.AssetInfo info = XManifest.Instance.Find(hashName);

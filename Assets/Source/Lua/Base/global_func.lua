@@ -1,59 +1,3 @@
-------------------------------------------------------------------------------------------
--- lua class
-function mkcall(mod)
-    local mt = {}
-    mt.__index = _G
-    mt.__call = function(func, ...) return func.new(...) end
-    setmetatable( mod, mt )
-end
-
-function class(super)
-    local superType = type(super)
-    local cls
-
-    if superType ~= "function" and superType ~= "table" then
-        superType = nil
-        super = nil
-    end
-
-    if super then
-        cls = {}
-        setmetatable(cls, {__index = super})
-    else
-        cls = {ctor = function() end}
-    end
-
-    cls.__index = cls
-
-    function cls.new(...)
-        local instance = setmetatable({}, cls)
-        instance:ctor(...)
-        return instance
-    end
-
-    return cls
-end
-
-function singleton(super)
-    local superType = type(super)
-    local cls
-
-    if superType ~= "function" and superType ~= "table" then
-        super = nil
-    end
-
-    if super then
-        cls = {}
-        setmetatable(cls, {__index = super})
-    else
-        cls = {}
-    end
-
-    cls.__index = cls
-
-    return cls
-end
-
 
 ------------------------------------------------------------------------------------------
 
@@ -107,6 +51,14 @@ end
 function stringify(t)
     return _stringify_rvalue(t, 5)
 end
+
+local function error_hander(h)
+    ELOG(h)
+end
+function SAFE_CALL(f, ...)
+    return xpcall(f, error_hander, ...)
+end
+
 
 ------------------------------------------------------------------------------------------
 
@@ -178,20 +130,20 @@ end
 -- logs
 function LOG(...)
     if not _PUBLISH then
-        U.Debug.Log("Lua:" .. contact_parm(...).."\r\n".. debug.traceback("",2))
+        E.Debug.Log("Lua:" .. contact_parm(...).."\r\n".. debug.traceback("",2))
     end
 end
 
 function ELOG(...)
-    U.Debug.LogError("Lua:" .. contact_parm(...) ..  debug.traceback())
+    E.Debug.LogError("Lua:" .. contact_parm(...) ..  debug.traceback())
 end
 
 function INFO(...)
     if not _PUBLISH then
         if _UNITY_EDITOR then
-            U.Debug.Log(_beautify_log("Lua:" .. contact_parm(...), "#ffff00"))
+            E.Debug.Log(_beautify_log("Lua:" .. contact_parm(...), "#ffff00"))
         else
-            U.Debug.Log("Lua:" .. contact_parm(...))
+            E.Debug.Log("Lua:" .. contact_parm(...))
         end
     end
 end
@@ -201,7 +153,7 @@ function dbg(...)
 end
 
 function dbgt(...)
-    U.Debug.Log(_beautify_log(DT({...},false),"#00ff00"))
+    E.Debug.Log(_beautify_log(DT({...},false),"#00ff00"))
 end
 ----------------------------------------------------------------------------------------
 
@@ -246,7 +198,7 @@ function unload_unused_memory_on_next_frame()
             Yield()
         end
         collectgarbage("restart")
-        Yield(U.Resources.UnloadUnusedAssets())
+        Yield(E.Resources.UnloadUnusedAssets())
         INFO("===== unload unused memory end =====")
 
         is_unload_unused_memory_processing_ = false

@@ -128,6 +128,8 @@ public static class XLuaGenConfig
         typeof(UnityEngine.Input),
         typeof(UnityEngine.TouchPhase),
         typeof(UnityEngine.EventSystems.EventSystem),
+
+        typeof(UIContainer),
     };
 
     // [LuaCallCSharp]

@@ -1,90 +1,95 @@
----@type U
-local U = {}
+---@type E
+local E = {}
 local CS = CS
 ---------- Custom
-U.GHelper = CS.GHelper
+E.GHelper = CS.GHelper
 
 
 -- Json = LuaJson
 
 ---------- UnityEngine
 local UnityEngine = CS.UnityEngine
-U.Application = UnityEngine.Application
-U.Debug = UnityEngine.Debug
-U.GameObject = UnityEngine.GameObject
-U.SpriteRenderer = UnityEngine.SpriteRenderer
-U.Texture = UnityEngine.Texture
-U.Resources = UnityEngine.Resources
-U.Time = UnityEngine.Time
-U.Mathf = UnityEngine.Mathf
-U.Camera = UnityEngine.Camera
-U.RectTransform = UnityEngine.RectTransform
-U.Vector3 = UnityEngine.Vector3
-U.Vector2 = UnityEngine.Vector2
-U.Vector4 = UnityEngine.Vector4
-U.Rect = UnityEngine.Rect
-U.Canvas = UnityEngine.Canvas
-U.CanvasGroup = UnityEngine.CanvasGroup
-U.Color = UnityEngine.Color
-U.Animator = UnityEngine.Animator
-U.AnimatorUpdateMode = UnityEngine.AnimatorUpdateMode
-U.Animation = UnityEngine.Animation
-U.WaitForSecondsRealtime = UnityEngine.WaitForSecondsRealtime
-U.WaitForEndOfFrame = UnityEngine.WaitForEndOfFrame
-U.WaitForFixedUpdate = UnityEngine.WaitForFixedUpdate
-U.WaitForSeconds = UnityEngine.WaitForSeconds
-U.Screen = UnityEngine.Screen
-U.AudioSource = UnityEngine.AudioSource
-U.Renderer = UnityEngine.Renderer
-U.Shader = UnityEngine.Shader
-U.ParticleSystem = UnityEngine.ParticleSystem
-U.Quaternion = UnityEngine.Quaternion
-U.Collider = UnityEngine.Collider
-U.Material = UnityEngine.Material
-U.Plane = UnityEngine.Plane
-U.LayerMask = UnityEngine.LayerMask
-U.Transform = UnityEngine.Transform
-U.RectTransformUtility = UnityEngine.RectTransformUtility
-U.AudioListener = UnityEngine.AudioListener
-U.QualitySettings = UnityEngine.QualitySettings
-U.RuntimePlatform = UnityEngine.RuntimePlatform
-U.WWWForm = UnityEngine.WWWForm
-U.UnityWebRequest = UnityEngine.Networking.UnityWebRequest
-U.Input = UnityEngine.Input
-U.Touch = UnityEngine.Touch
-U.TouchPhase = UnityEngine.TouchPhase
-U.EventSystem = UnityEngine.EventSystems.EventSystem
+E.Application = UnityEngine.Application
+E.UIContainer = CS.UIContainer
+E.Debug = UnityEngine.Debug
+E.GameObject = UnityEngine.GameObject
+E.SpriteRenderer = UnityEngine.SpriteRenderer
+E.Texture = UnityEngine.Texture
+E.Resources = UnityEngine.Resources
+E.Time = UnityEngine.Time
+E.Mathf = UnityEngine.Mathf
+E.Camera = UnityEngine.Camera
+E.RectTransform = UnityEngine.RectTransform
+E.Vector3 = UnityEngine.Vector3
+E.Vector2 = UnityEngine.Vector2
+E.Vector4 = UnityEngine.Vector4
+E.Rect = UnityEngine.Rect
+E.Canvas = UnityEngine.Canvas
+E.CanvasGroup = UnityEngine.CanvasGroup
+E.Color = UnityEngine.Color
+E.Animator = UnityEngine.Animator
+E.AnimatorUpdateMode = UnityEngine.AnimatorUpdateMode
+E.Animation = UnityEngine.Animation
+E.WaitForSecondsRealtime = UnityEngine.WaitForSecondsRealtime
+E.WaitForEndOfFrame = UnityEngine.WaitForEndOfFrame
+E.WaitForFixedUpdate = UnityEngine.WaitForFixedUpdate
+E.WaitForSeconds = UnityEngine.WaitForSeconds
+E.Screen = UnityEngine.Screen
+E.AudioSource = UnityEngine.AudioSource
+E.Renderer = UnityEngine.Renderer
+E.Shader = UnityEngine.Shader
+E.ParticleSystem = UnityEngine.ParticleSystem
+E.Quaternion = UnityEngine.Quaternion
+E.Collider = UnityEngine.Collider
+E.Material = UnityEngine.Material
+E.Plane = UnityEngine.Plane
+E.LayerMask = UnityEngine.LayerMask
+E.Transform = UnityEngine.Transform
+E.RectTransformUtility = UnityEngine.RectTransformUtility
+E.AudioListener = UnityEngine.AudioListener
+E.QualitySettings = UnityEngine.QualitySettings
+E.RuntimePlatform = UnityEngine.RuntimePlatform
+E.WWWForm = UnityEngine.WWWForm
+E.UnityWebRequest = UnityEngine.Networking.UnityWebRequest
+E.Input = UnityEngine.Input
+E.Touch = UnityEngine.Touch
+E.TouchPhase = UnityEngine.TouchPhase
+E.EventSystem = UnityEngine.EventSystems.EventSystem
 
-U.NetworkReachability = UnityEngine.NetworkReachability
-U.SystemInfo = UnityEngine.SystemInfo
-U.GUIUtility = UnityEngine.GUIUtility
-U.SkinnedMeshRenderer = UnityEngine.SkinnedMeshRenderer
+E.NetworkReachability = UnityEngine.NetworkReachability
+E.SystemInfo = UnityEngine.SystemInfo
+E.GUIUtility = UnityEngine.GUIUtility
+E.SkinnedMeshRenderer = UnityEngine.SkinnedMeshRenderer
 
 ---------- UnityEngine.UI
 local UI = UnityEngine.UI
-U.GraphicRaycaster = UI.GraphicRaycaster
-U.Button = UI.Button
-U.Toggle = UI.Toggle
-U.ToggleGroup = UI.ToggleGroup
-U.Image = UI.Image
-U.Selectable = UI.Selectable
-U.Text = UI.Text
-U.InputField = UI.InputField
-U.Shadow = UI.Shadow
-U.Outline = UI.Outline
-U.ScrollRect = UI.ScrollRect
+E.GraphicRaycaster = UI.GraphicRaycaster
+E.Button = UI.Button
+E.Toggle = UI.Toggle
+E.ToggleGroup = UI.ToggleGroup
+E.Image = UI.Image
+E.Selectable = UI.Selectable
+E.Text = UI.Text
+E.InputField = UI.InputField
+E.Shadow = UI.Shadow
+E.Outline = UI.Outline
+E.ScrollRect = UI.ScrollRect
 
 
 -- for k, v in pairs(CS) do
---     U[k] = v
+--     E[k] = v
 -- end
 
-U.XLoader = CS.XLoader
-U.LuaBridgeBase = CS.LuaBridgeBase
-U.LuaBridgeType = U.GHelper.TraveEnumToLuaTable(typeof(CS.LuaBridgeType), {})
-U.UnityBehaviourFunc =U.GHelper.TraveEnumToLuaTable(typeof(CS.UnityBehaviourFunc), {})
+T = T or {}
 
-U.Packet = CS.Packet
-U.WarNet = CS.WarNet
+T.YSLoader = CS.YSLoader
+T.LuaBridgeBase = CS.LuaBridgeBase
+T.LuaBridgeType = E.GHelper.TraveEnumToLuaTable(typeof(CS.LuaBridgeType), {})
+T.UnityBehaviourFunc =E.GHelper.TraveEnumToLuaTable(typeof(CS.UnityBehaviourFunc), {})
 
-_G.U = U
+T.LuaFilePicker = CS.LuaFilePicker
+
+T.Packet = CS.Packet
+T.WarNet = CS.WarNet
+
+_G.E = E

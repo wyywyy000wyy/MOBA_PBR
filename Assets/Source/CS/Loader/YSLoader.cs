@@ -14,6 +14,7 @@ using System.IO;
 using System;
 using UnityEngine.Networking;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 public class Example : MonoBehaviour
 {
@@ -209,6 +210,13 @@ public class YSLoader : MonoBehaviour
     public static object LoadAssetAsync(string key, System.Action<UnityEngine.Object> onComplete)
     {
         return Addressables.LoadAssetsAsync<UnityEngine.Object>(key, onComplete);
+    }
+
+    public static async void InstantiateAsync(string key, System.Action<UnityEngine.Object> onComplete)
+    {
+        var task = Addressables.InstantiateAsync(key);
+        await task.Task;
+        onComplete(task.Result);
     }
 
     //public static object LoadAssetAsync(string key, System.Action<UnityEngine.Object> onComplete)

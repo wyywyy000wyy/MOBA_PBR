@@ -113,8 +113,8 @@ public class SpritePostprocessor : AssetPostprocessor
 
         if (quality == TextureQuaility.Low)
         {
-            androidTexture.format = TextureImporterFormat.ASTC_RGBA_4x4;
-            iosTexture.format = TextureImporterFormat.ASTC_RGBA_4x4;
+            androidTexture.format = TextureImporterFormat.ASTC_4x4;
+            iosTexture.format = TextureImporterFormat.ASTC_4x4;
         }
         else
         {
