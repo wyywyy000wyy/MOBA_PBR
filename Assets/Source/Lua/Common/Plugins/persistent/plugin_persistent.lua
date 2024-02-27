@@ -1,0 +1,1 @@
+local plugin_peristent = plugin_def("plugin_persistent")

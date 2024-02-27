@@ -1,0 +1,1 @@
+local event = class("event")

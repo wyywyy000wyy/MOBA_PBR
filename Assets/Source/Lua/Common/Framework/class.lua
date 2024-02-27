@@ -1,4 +1,5 @@
 T = T or {}
+
 function class(pre, base, _ctor)
 
     local c

@@ -130,20 +130,32 @@ end
 -- logs
 function LOG(...)
     if not _PUBLISH then
-        E.Debug.Log("Lua:" .. contact_parm(...).."\r\n".. debug.traceback("",2))
+        E.Debug.Log(  contact_parm(...).."\r\n".. debug.traceback("",2))
+    end
+end
+
+function LOGF(format, ...)
+    if not _PUBLISH then
+        E.Debug.Log(  string.format(format, ...).."\r\n".. debug.traceback("",2))
     end
 end
 
 function ELOG(...)
-    E.Debug.LogError("Lua:" .. contact_parm(...) ..  debug.traceback())
+    E.Debug.LogError(  contact_parm(...) ..  debug.traceback())
+end
+
+function DLOG(...)
+    if not _PUBLISH then
+        E.Debug.Log(  contact_parm(...).."\r\n".. debug.traceback("",2))
+    end
 end
 
 function INFO(...)
     if not _PUBLISH then
         if _UNITY_EDITOR then
-            E.Debug.Log(_beautify_log("Lua:" .. contact_parm(...), "#ffff00"))
+            E.Debug.Log(_beautify_log(  contact_parm(...), "#ffff00"))
         else
-            E.Debug.Log("Lua:" .. contact_parm(...))
+            E.Debug.Log(  contact_parm(...))
         end
     end
 end

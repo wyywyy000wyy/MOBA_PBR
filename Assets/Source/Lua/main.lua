@@ -1,28 +1,36 @@
 
-require("Base/import")
-require("Common/Framework/class")
-require("Framework/file_system")
-require("Base/global_func")
-require("Common/Framework/hot_require")
-require("Base/s_coroutine")
-require("Base/behaviour_bridge")
-require("Base/game_state/game_state")
-require("Base/game_state/game_state_manager")
-require("Base/game_state/game_state_login")
+require("base/import")
+require("common/framework/class")
+require("framework/file_system")
+require("base/global_func")
+require("common/framework/hot_require")
+require_folder("framework/type")
+require("base/s_coroutine")
+require("base/behaviour_bridge")
+require("base/game_state/game_state")
+require("base/game_state/game_state_manager")
+require("base/game_state/game_state_login", true)
 
-require_folder("Data", true)
-require_folder("Base/task")
+require_folder("data", true)
+-- require_folder("base/task")
 
-require_folder("Base/ui")
+require_folder("base/ui")
 
-require_folder("Framework")
+require_folder("framework")
+PM:load_plugin("task_manager")
 
 function main()
     collectgarbage("setpause", 100)
     collectgarbage("setstepmul", 500)
     math.randomseed(os.time())
- 
-    g_game_state_manager:push_state(T.game_state_login())
+
+    PM:load(require("plugins/plugin_manifest"))
+    require("base/test")
+    -- g_game_state_manager:push_state(T.game_state_login())
+end
+
+function update()
+    PM:update()
 end
 
 main()

@@ -48,7 +48,7 @@ function ui_manager:get_window(window_name)
     local window = self._windows[window_name]
     if not window then
         local config = ui_config[window_name]
-        require("UI/" ..config.code)
+        require("ui/" ..config.code)
 
         window = T[window_name]()
         T.ui_window._ctor(window, window_name)

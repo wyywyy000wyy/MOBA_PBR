@@ -6,7 +6,7 @@ function BehaviourBridge:ctor(go)
 end
 
 function BehaviourBridge:bridge_type()
-    return U.LuaBridgeType.Base
+    return U.LuaBridgeType.base
 end
 
 function BehaviourBridge:bind(go)

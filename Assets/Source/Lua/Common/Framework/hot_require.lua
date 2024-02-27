@@ -9,11 +9,33 @@ local prequire = g_require
 hot_require = {}
 
 local search_paths = {
-    "Common/",
+    "common/",
     "",
 }
 
-local require_file = class("require_file", function(self, modname)
+local function get_folder(path)
+    if not path then
+        return ""
+    end
+    local paths = {}
+    for match in (path .."/"):gmatch("(.-)".."/") do
+        table.insert(paths, match)
+    end
+    -- local paths = string.split(path, "/")
+    local folder = table.concat(paths, "/", 1, #paths - 1)
+    return folder
+end
+
+local function getCurrentLuaPath(upnum)
+    local info = debug.getinfo(upnum, "S")
+    local path = info.source
+    local LuaIdx = string.find(path, "Lua")
+    local path2 = string.sub(path, LuaIdx + 4)
+
+    return path2
+end
+
+local require_file = class("require_file", function(self, modname, folder)
     self.modname = modname
     self.path = modname
     self.time = 0
@@ -25,6 +47,7 @@ local require_file = class("require_file", function(self, modname)
         table_insert(files, filepath)
     end
     self.files = files
+    self.search_folder = {}
     -- self.filePaths = {}
 end)
 
@@ -60,10 +83,11 @@ end
 
 function require_file:require()
     if not self:dirty() then
-        return
+        return self._ret
     end
     self.file_count = 0
     local first = self.time == 0
+    local ret = nil
     for i, path in ipairs(self.files) do
         if file_system.exsit_file(path) then
             -- if not require_path then
@@ -75,23 +99,37 @@ function require_file:require()
             if not first then
                 ELOG("GGGGGGGG....... 热更了文件：" .. path)
             end
-            dofile(require_path)
+            ret = dofile(require_path)
+            self.search_folder[i] = get_folder(require_path)
+
+            -- LOG("require_file", self.modname, "path", path, "require_path", require_path, "folder", self.search_folder[i])
+        else
+            self.search_folder[i] = nil
         end
     end
+    self._ret = ret
+    return ret
 end
 
 local init_map = {}
 local init_list = {}
 
+lrequire = function(modname)
+    local path = getCurrentLuaPath(3)
+    local folder = get_folder(path)
+    local modname_with_folder = string.format( "%s/%s", folder, modname)
+    -- LOG("lrequire", modname, "path", path, "folder", folder, "modname_with_folder", modname_with_folder)
+    return require(modname_with_folder)
+end
 
-require = function(modname)
+require = function(modname, is_folder)
     local require_info = init_map[modname]
     if not require_info then
         require_info = require_file(modname)
         init_map[modname] = require_info
         table.insert(init_list, require_info)
     end
-    require_info:require()
+    return require_info:require()
 end
 
 function require_folder(folder, recursive)
@@ -103,7 +141,7 @@ function require_folder(folder, recursive)
         for i = 0, len - 1 do
             local filepath = filepath .. "/" .. files[i]
             -- ELOG("require_folder", filepath)
-            require(filepath)
+            require(filepath, true)
         end
     end
 

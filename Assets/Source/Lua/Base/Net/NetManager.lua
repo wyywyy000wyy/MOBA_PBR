@@ -2,10 +2,10 @@
 
 local pb = require 'pb'
 local protoc = require 'protoc'
-local proto = require("Base/Net/Proto")
+local proto = require("base/net/Proto")
 local WarNet 
-require("Base/Net/MsgProtocol")
-require("Base/Net/MsgHandler")
+require("base/net/MsgProtocol")
+require("base/net/MsgHandler")
 
 NetManager = {
 

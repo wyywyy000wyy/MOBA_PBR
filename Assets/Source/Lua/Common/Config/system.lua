@@ -1,3 +1,3 @@
 return {
-    COMMON_PATH = "Common",
+    COMMON_PATH = "common",
 }
