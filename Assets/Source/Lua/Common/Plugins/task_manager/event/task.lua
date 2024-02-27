@@ -85,9 +85,9 @@ local task_class_mt = {
 
 function task_def(task_name, on_excute, properties, result_properties)
     properties = properties or {}
-    local task_class = Struct(task_name, properties)
+    local task_class = StructDef(task_name, properties)
     task_class._on_excute = on_excute
-    local result_class = result_properties and Struct(task_name .. "_r", result_properties)
+    local result_class = result_properties and StructDef(task_name .. "_r", result_properties)
 
     local task_wrapper = {
         name = task_name,

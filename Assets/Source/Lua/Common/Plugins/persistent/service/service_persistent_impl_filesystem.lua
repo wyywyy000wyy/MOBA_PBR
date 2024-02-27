@@ -4,8 +4,12 @@ local db_file_name = "persistent.db"
 
 function service_persistent_impl_filesystem:init()
     
-    local db = T.file_system.read_file(db_file_name) or {}
-
+    local db_str = T.file_system.read_file(db_file_name)
+    local db
+    if db_str then
+        db = cjson.decode(db_str)
+    end
+    db = db or {}
     self._db = db
 
 
@@ -31,7 +35,7 @@ function service_persistent_impl_filesystem:load(table, key)
     end
 end
 
-function service_persistent_impl_filesystem:save(table, key, data)
+function service_persistent_impl_filesystem:save_data(table, key, data)
     local table_data = self._db[table]
     if not table_data then
         table_data = {}

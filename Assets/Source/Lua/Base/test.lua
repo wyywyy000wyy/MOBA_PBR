@@ -8,7 +8,7 @@
 -- sss_folder = T.file_system.get_folder(sss)
 -- LOG("sss", sss,  "folder", sss_folder)
 
-local PlayerType = Struct("Player", 
+local PlayerType = StructDef("Player", 
     PD(String, "name", "default_name"),
     PD(Int, "Lv", 1)
 )
