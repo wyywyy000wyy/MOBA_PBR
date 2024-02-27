@@ -18,9 +18,3 @@ function service_persistent:persistent_save(action, table, key, data)
     self._impl:save_data(table, key, data)
     action:finish()
 end
-
--- Task()
--- :persistent:load("table", "key")
--- :sync(function(data)
---     print("load data:", data)
--- end)

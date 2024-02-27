@@ -3,7 +3,6 @@ end)
 local db_file_name = "persistent.db"
 
 function service_persistent_impl_filesystem:init()
-    
     local db_str = T.file_system.read_file(db_file_name)
     local db
     if db_str then
@@ -11,16 +10,6 @@ function service_persistent_impl_filesystem:init()
     end
     db = db or {}
     self._db = db
-
-
-    -- -- JSON序列化
-    -- local data = {name = "John", age = 30, city = "New York"}
-    -- local jsonStr = cjson.encode(data)
-    -- LOG(jsonStr)
-    -- T.file_system.write_file("test__aaa.json", jsonStr)
-    -- -- JSON反序列化
-    -- local decodedData = cjson.decode(jsonStr)
-    -- LOG(decodedData.name, decodedData.age, decodedData.city)
 end
 
 function service_persistent_impl_filesystem:save()

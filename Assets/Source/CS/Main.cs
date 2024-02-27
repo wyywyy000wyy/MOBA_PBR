@@ -50,6 +50,7 @@ public class Main : MonoBehaviour
         if (currentLuaEnv != null)
         {
             currentLuaEnv.Tick();
+            currentLuaEnv.Global.Get<LuaFunction>("update").Call();
         }
 #if UNITY_EDITOR || UNITY_STANDALONE
         if (Input.GetKeyUp(KeyCode.F5))

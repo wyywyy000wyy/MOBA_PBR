@@ -1,14 +1,7 @@
 return {
     action = {
-        action_def("persistent_load", {
-            PD(String, "table"),
-            PD(Key, "key"),
-        }),
-        action_def("persistent_save", {
-            PD(String, "table"),
-            PD(Key, "key"),
-            PD(Struct, "data")
-        }),
+        AD("persistent_load", String, Key),
+        AD("persistent_save",String, Key, Struct),
     },
     event = {
 
