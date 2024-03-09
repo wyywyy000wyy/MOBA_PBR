@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using UnityEditor.ShortcutManagement;
 using UnityEngine;
 using XLua;
@@ -16,6 +17,12 @@ public class Main : MonoBehaviour
         //XLoader.Initialize(true);
         initLua();
     }
+#if (UNITY_IPHONE || UNITY_TVOS || UNITY_WEBGL || UNITY_SWITCH) && !UNITY_EDITOR
+        [DllImport("__Internal", CallingConvention = CallingConvention.Cdecl)]
+#else
+    [DllImport("xlua", CallingConvention = CallingConvention.Cdecl)]
+#endif
+    static extern int luaopen_cmsgpack_safe(System.IntPtr L);
 
     void initLua()
     {
@@ -28,8 +35,8 @@ public class Main : MonoBehaviour
             return LuaFilePicker.Load(fn);
         });
         currentLuaEnv.AddBuildin("pb", XLua.LuaDLL.Lua.LoadLuaProfobuf);
+        luaopen_cmsgpack_safe(currentLuaEnv.L);
         currentLuaEnv.DoString("require '" + Defines.LuaEntryFileName + "'");
-
     }
 
 #if UNITY_EDITOR

@@ -24,5 +24,7 @@ task
 end, 22, 33)
 :excute()
 
+local guoguo_data = cmsgpack.pack(guoguo)
+local guoguo_table = cmsgpack.unpack(guoguo_data)
 local a = 1
 a  =2

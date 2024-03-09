@@ -29,6 +29,7 @@ end
 local function getCurrentLuaPath(upnum)
     local info = debug.getinfo(upnum, "S")
     local path = info.source
+    -- LOG("getCurrentLuaPath", path, "upnum", upnum, debug.traceback()) 
     local LuaIdx = string.find(path, "Lua")
     local path2 = string.sub(path, LuaIdx + 4)
 
@@ -97,8 +98,9 @@ function require_file:require()
             self.time = math.max(self.time, get_file_time(require_path))
             self.file_count = self.file_count + 1
             if not first then
-                ELOG("GGGGGGGG....... 热更了文件：" .. path)
+                ELOG("GGGGGGGG....... hot reload" .. path)
             end
+            -- LOG("GGGGGGGG....... hot reload file:" .. path)
             ret = dofile(require_path)
             self.search_folder[i] = get_folder(require_path)
 
@@ -138,11 +140,23 @@ function require_folder(folder, recursive)
         local filepath = path .. folder
         local files = get_files(filepath, recursive)
         local len = files.Count
-        for i = 0, len - 1 do
-            local filepath = filepath .. "/" .. files[i]
-            -- ELOG("require_folder", filepath)
-            require(filepath, true)
+        if files.Count then
+            for i = 0, len - 1 do
+                -- LOG("path", len, i, filepath, files and files[i])
+                local filepath = filepath .. "/" .. files[i]
+                -- ELOG("require_folder", filepath)
+                require(filepath, true)
+            end
+        else
+            len = #files
+            for i = 1, len do
+                -- LOG("path_2", len, i, filepath, files and files[i])
+                local filepath = filepath .. "/" .. files[i]
+                -- ELOG("require_folder", filepath)
+                require(filepath, true)
+            end
         end
+        
     end
 
     -- local files = get_files(folder, recursive)
